@@ -5,7 +5,6 @@ export type Position = {
   Location: string;
   "Started On": string;
   "Finished On": string;
-  skills?: string[]; // Added skills array to Position
 };
 
 export type Profile = {
@@ -57,22 +56,21 @@ export type PositionSkillMapping = {
   };
 };
 
-export type CVData = {
-  profile: Profile;
-  positions: Position[];
-  projects: Project[];
-  education: Education[];
-  email: { "Email Address": string };
-  languages: Language[];
+export type PositionWithSkills = Position & {
+  skills: string[];
 };
 
-// Types for the data transformation layer
 export type SkillCategory = {
   name: string;
   skills: string[];
 };
 
-export type TransformedCVData = Omit<CVData, "positions"> & {
-  positions: (Position & { skills: string[] })[];
+export type TransformedCVData = {
+  profile: Profile;
+  positions: PositionWithSkills[];
+  projects: Project[];
+  education: Education[];
+  email: { "Email Address": string };
+  languages: Language[];
   skillCategories: SkillCategory[];
 };

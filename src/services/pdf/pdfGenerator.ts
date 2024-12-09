@@ -6,6 +6,7 @@ import { TransformedCVData } from "../../models/types";
 function trimLocation(location: string): string {
   const locationMap: Record<string, string> = {
     "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
+    "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
     "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
     "Göteborg, Sverige": "Gothenburg, Sweden",
   };

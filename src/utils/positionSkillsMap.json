@@ -1,49 +1,188 @@
 {
   "Hiber": {
-    "Hiber3D Game Studio Full Stack Developer": [
-      "C++",
-      "React",
-      "TypeScript",
-      "Full-Stack Development",
-      "Web Development",
-      "Software Development"
-    ],
-    "Systems Administrator": [
-      "Security",
-      "DevOps",
-      "Configuration Management",
-      "Infrastructure as code (IaC)"
-    ],
-    "AI DevOps": [
-      "Python (Programming Language)",
-      "Large Language Models (LLM)",
-      "Google Cloud Platform (GCP)",
-      "DevOps",
-      "Prompt Engineering",
-      "Vector Databases",
-      "Fine Tuning"
-    ],
-    "React / TypeScript Developer": [
-      "React",
+    "Full Stack Developer": [
+      "Python",
       "TypeScript",
       "Infrastructure as code (IaC)",
-      "DevOps",
       "Full-Stack Development",
-      "Web Development"
+      "Next.js",
+      "React",
+      "Google Cloud Platform (GCP)",
+      "Amazon Web Services (AWS)",
+      "Terraform",
+      "DevOps",
+      "C++",
+      "Programming"
     ],
-    "Information Security | Test Automation Lead": [
-      "Security",
-      "Test Automation",
-      "Software Development",
+    "Systems Administrator": [
+      "Infrastructure as code (IaC)",
+      "Google Cloud Platform (GCP)",
+      "Backoffice IT Management",
+      "Terraform",
+      "Security"
+    ],
+    "AI Software Developer": [
+      "Large Language Models (LLM)",
+      "Python",
+      "Full-Stack Development",
+      "Vector Databases",
+      "Next.js",
+      "Prompt Engineering",
+      "React",
+      "Google Cloud Platform (GCP)",
+      "Fine Tuning",
+      "Amazon Web Services (AWS)",
       "DevOps"
     ],
+    "React / TypeScript Developer": [
+      "TypeScript",
+      "Infrastructure as code (IaC)",
+      "Full-Stack Development",
+      "Tailwind CSS",
+      "Next.js",
+      "React",
+      "AWS Aurora",
+      "Programming"
+    ],
+    "Information Security | Test Automation Lead": [
+      "Test Automation",
+      "Software Project Management",
+      "Security",
+      "Compliance"
+    ],
     "Chief Technology Officer": [
+      "Software Project Management",
+      "React",
       "Team Leadership",
-      "Software Architecture",
-      "Product Management",
       "Business Strategy",
-      "Agile Methodologies",
-      "Scrum"
+      "Agile Methodologies"
+    ]
+  },
+  "Allevi AB": {
+    "CISO | Product Owner | Business Analyst | CloudOps Engineer | Systems Developer": [
+      "Test Automation",
+      "Infrastructure as code (IaC)",
+      "Full-Stack Development",
+      "Product Management",
+      "Software Project Management",
+      "PHP Symphony",
+      "Amazon Web Services (AWS)",
+      "DevOps",
+      "AWS CloudFormation",
+      "Security",
+      "Compliance"
+    ]
+  },
+  "Acorn Technology AB": {
+    "Senior Software Developer at Saab": [
+      "Full-Stack Development",
+      "C#",
+      "DevOps",
+      "Programming",
+      "Microsoft.NET"
+    ],
+    "Senior Technical Consultant": [
+      "Full-Stack Development",
+      "C#",
+      "Programming",
+      "Microsoft.NET"
+    ],
+    "Lead Developer at Aros Electronics AB": [
+      "Full-Stack Development",
+      "C#",
+      "Microsoft.NET",
+      "Mechatronics"
+    ],
+    "Senior Developer Team Lead at KGH Customs Services": [
+      "Full-Stack Development",
+      "Software Architecture",
+      "C#",
+      "JavaScript",
+      "Microsoft.NET",
+      "RabbitMQ"
+    ]
+  },
+  "TIBCO Spotfire": {
+    "Senior Software Architect | Senior Software Developer | Lead Tech": [
+      "Full-Stack Development",
+      "AngularJS",
+      "Microsoft.NET",
+      "Java",
+      "C#",
+      "Software Architecture"
+    ]
+  },
+  "OpenSim": {
+    "Co-founder | Lead Programmer": [
+      "Full-Stack Development",
+      "C#",
+      "Open Source",
+      "Mono"
+    ]
+  },
+  "Tribal Media AB": {
+    "CEO": [
+      "Full-Stack Development",
+      "Software Project Management",
+      "C#",
+      "Microsoft.NET",
+      "Team Leadership"
+    ],
+    "Lead Programmer | Software Architect": [
+      "Full-Stack Development",
+      "Programming",
+      "Software Architecture"
+    ]
+  },
+  "Playahead AB": {
+    "Lead Programmer": [
+      "Full-Stack Development",
+      "C#",
+      "DevOps",
+      "Microsoft.NET"
+    ]
+  },
+  "Voice Workers AB": {
+    "CTO": [
+      "Full-Stack Development",
+      "Java",
+      "Interactive Voice Response (IVR)",
+      "Natural Language Processing (NLP)",
+      "Telephony",
+      "Team Leadership"
+    ]
+  },
+  "Ullman Human Design Group AB": {
+    "CTO | Senior consultant": ["Assembly Language", "Team Leadership"]
+  },
+  "Framfab": {
+    "Lead Programmer | Software Architect | Key Account Manager": [
+      "Full-Stack Development",
+      "Programming",
+      "Software Architecture"
+    ]
+  },
+  "Viktoria Swedish ICT": {
+    "Amanuens": ["Programming", "Web Development"]
+  },
+  "Dagens TV A/S": {
+    "CTO | Senior Systems Developer": [
+      "Full-Stack Development",
+      "C++",
+      "Team Leadership"
+    ]
+  },
+  "Teamwork": {
+    "Consultant, Systems Administration": [
+      "Systems Administration",
+      "Configuration Management"
+    ]
+  },
+  "Pendax AV Tjänst": {
+    "Freelance Programmer": [
+      "Full-Stack Development",
+      "Programming",
+      "Assembly Language"
     ]
   }
 }

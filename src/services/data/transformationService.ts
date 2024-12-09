@@ -13,30 +13,46 @@ import {
 } from "../../models/types";
 
 const SKILL_CATEGORIES = {
-  languages: [
+  "Core Competencies": new Set([
+    "Full-Stack Development",
+    "Software Development",
+    "Web Development",
+    "Mobile Applications",
+    "Programming",
+    "Test Automation",
+    "Mechatronics",
+    "Interactive Voice Response (IVR)",
+    "Natural Language Processing (NLP)",
+  ]),
+  "Programming Languages": new Set([
     "JavaScript",
     "TypeScript",
     "Python",
+    "Python (Programming Language)",
     "C",
     "C++",
     "C#",
     "Java",
     "PHP",
     "Assembly Language",
-  ],
-  webTechnologies: [
+    "CSS",
+    "Tailwind CSS",
+  ]),
+  "Web Technologies": new Set([
     "React",
     "React Native",
     "Node.js",
+    "Next.js",
     "AngularJS",
     "Microsoft.NET",
+    "Mono",
     "PHP Symphony",
     "CSS",
     "ES6",
     "Web Services",
     "Web Applications",
-  ],
-  cloudInfrastructure: [
+  ]),
+  "Cloud & Infrastructure": new Set([
     "Amazon Web Services (AWS)",
     "Google Cloud Platform (GCP)",
     "AWS Aurora",
@@ -47,23 +63,26 @@ const SKILL_CATEGORIES = {
     "Configuration Management",
     "Puppet",
     "Distributed Systems",
-  ],
-  artificialIntelligence: [
+    "RabbitMQ",
+  ]),
+  "Artificial Intelligence": new Set([
     "Large Language Models (LLM)",
     "Prompt Engineering",
     "Vector Databases",
     "Fine Tuning",
-  ],
-  databases: ["Microsoft SQL Server", "MySQL", "Entity Framework"],
-  developmentTools: ["Git", "Open Source", "Windows", "Test Automation"],
-  engineeringPractices: [
+  ]),
+  Databases: new Set(["Microsoft SQL Server", "MySQL", "Entity Framework"]),
+  "Development Tools": new Set(["Git", "Windows"]),
+  "Engineering Practices": new Set([
     "Software Architecture",
     "Software Design",
     "Software Engineering",
     "Integration",
+    "Open Source",
     "Security",
-  ],
-  management: [
+    "Compliance",
+  ]),
+  Management: new Set([
     "Team Leadership",
     "Software Project Management",
     "Product Management",
@@ -73,20 +92,14 @@ const SKILL_CATEGORIES = {
     "Agile Methodologies",
     "Scrum",
     "Extreme Programming",
-  ],
-  coreCompetencies: [
-    "Full-Stack Development",
-    "Software Development",
-    "Web Development",
-    "Mobile Applications",
-    "Programming",
-  ],
+  ]),
 };
 
 function normalizeSkillName(skill: string): string {
   const skillMap: Record<string, string> = {
     ".NET": "Microsoft.NET",
     Databases: "", // This will be filtered out as empty
+    Telephony: "",
     "SQL Server": "Microsoft SQL Server",
     AWS: "Amazon Web Services (AWS)",
     GCP: "Google Cloud Platform (GCP)",
@@ -104,12 +117,8 @@ function categorizeSkills(skills: string[]): SkillCategory[] {
     (acc, skillName) => {
       let placed = false;
 
-      for (const [category, keywords] of Object.entries(SKILL_CATEGORIES)) {
-        if (
-          keywords.some((keyword) =>
-            skillName.toLowerCase().includes(keyword.toLowerCase())
-          )
-        ) {
+      for (const [category, skillSet] of Object.entries(SKILL_CATEGORIES)) {
+        if (skillSet.has(skillName)) {
           if (!acc[category]) acc[category] = [];
           acc[category].push(skillName);
           placed = true;
@@ -127,11 +136,14 @@ function categorizeSkills(skills: string[]): SkillCategory[] {
     {} as Record<string, string[]>
   );
 
+  if (categorizedSkills.other && categorizedSkills.other.length > 0) {
+    throw new Error(
+      `Uncategorized skills: ${JSON.stringify(categorizedSkills.other)}`
+    );
+  }
+
   return Object.entries(categorizedSkills).map(([category, skills]) => ({
-    name: category
-      .split(/(?=[A-Z])/)
-      .join(" ")
-      .replace(/^\w/, (c) => c.toUpperCase()),
+    name: category,
     skills: skills.sort(),
   }));
 }
