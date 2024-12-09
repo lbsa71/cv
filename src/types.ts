@@ -37,3 +37,21 @@ export type Education = {
   "End Date": string;
   Activities: string;
 };
+
+export type Email = {
+  "Email Address": string;
+  Confirmed: string;
+  Primary: string;
+  "Updated On": string;
+};
+
+export type Language = {
+  Name: string;
+  Proficiency: string;
+};
+
+export type PositionSkillMapping = {
+  [company: string]: {
+    [position: string]: string[];
+  };
+};

@@ -1,0 +1,49 @@
+{
+  "Hiber": {
+    "Hiber3D Game Studio Full Stack Developer": [
+      "C++",
+      "React",
+      "TypeScript",
+      "Full-Stack Development",
+      "Web Development",
+      "Software Development"
+    ],
+    "Systems Administrator": [
+      "Security",
+      "DevOps",
+      "Configuration Management",
+      "Infrastructure as code (IaC)"
+    ],
+    "AI DevOps": [
+      "Python (Programming Language)",
+      "Large Language Models (LLM)",
+      "Google Cloud Platform (GCP)",
+      "DevOps",
+      "Prompt Engineering",
+      "Vector Databases",
+      "Fine Tuning"
+    ],
+    "React / TypeScript Developer": [
+      "React",
+      "TypeScript",
+      "Infrastructure as code (IaC)",
+      "DevOps",
+      "Full-Stack Development",
+      "Web Development"
+    ],
+    "Information Security | Test Automation Lead": [
+      "Security",
+      "Test Automation",
+      "Software Development",
+      "DevOps"
+    ],
+    "Chief Technology Officer": [
+      "Team Leadership",
+      "Software Architecture",
+      "Product Management",
+      "Business Strategy",
+      "Agile Methodologies",
+      "Scrum"
+    ]
+  }
+}
