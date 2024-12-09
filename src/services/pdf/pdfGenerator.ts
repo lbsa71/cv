@@ -1,17 +1,9 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import {
-  Position,
-  Profile,
-  Project,
-  Skill,
-  Education,
-  Language,
-  PositionSkillMapping,
-} from "../types";
+import { TransformedCVData } from "../../models/types";
 
-function trimLocation(location: string) {
+function trimLocation(location: string): string {
   const locationMap: Record<string, string> = {
     "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
     "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
@@ -21,197 +13,30 @@ function trimLocation(location: string) {
   return locationMap[location] || location;
 }
 
-type CVData = {
-  profile: Profile;
-  positions: Position[];
-  projects: Project[];
-  skills: Skill[];
-  education: Education[];
-  email: { "Email Address": string };
-  languages: Language[];
-  positionSkillsMap: PositionSkillMapping;
-};
-
 function formatDate(date: string): string {
   return date || "Present";
 }
 
-function normalizeSkillName(skill: string): string {
-  const skillMap: Record<string, string> = {
-    ".NET": "Microsoft.NET",
-    Databases: "", // This will be filtered out as empty
-    "SQL Server": "Microsoft SQL Server",
-    AWS: "Amazon Web Services (AWS)",
-    GCP: "Google Cloud Platform (GCP)",
-  };
-
-  return skillMap[skill] ?? skill;
-}
-
-function formatSkills(skills: Skill[]): string[] {
-  const categories = {
-    // Core Programming Languages
-    languages: [
-      "JavaScript",
-      "TypeScript",
-      "Python",
-      "C",
-      "C++",
-      "C#",
-      "Java",
-      "PHP",
-      "Assembly Language",
-    ],
-
-    // Web Technologies & Frameworks
-    webTechnologies: [
-      "React",
-      "React Native",
-      "Node.js",
-      "AngularJS",
-      "Microsoft.NET",
-      "PHP Symphony",
-      "CSS",
-      "ES6",
-      "Web Services",
-      "Web Applications",
-    ],
-
-    // Cloud & Infrastructure
-    cloudInfrastructure: [
-      "Amazon Web Services (AWS)",
-      "Google Cloud Platform (GCP)",
-      "AWS Aurora",
-      "AWS CloudFormation",
-      "Infrastructure as code (IaC)",
-      "Terraform",
-      "DevOps",
-      "Configuration Management",
-      "Puppet",
-      "Distributed Systems",
-    ],
-
-    // AI & Machine Learning
-    artificialIntelligence: [
-      "Large Language Models (LLM)",
-      "Prompt Engineering",
-      "Vector Databases",
-      "Fine Tuning",
-    ],
-
-    // Databases & Data
-    databases: ["Microsoft SQL Server", "MySQL", "Entity Framework"],
-
-    // Development Tools & Practices
-    developmentTools: ["Git", "Open Source", "Windows", "Test Automation"],
-
-    // Software Engineering Practices
-    engineeringPractices: [
-      "Software Architecture",
-      "Software Design",
-      "Software Engineering",
-      "Integration",
-      "Security",
-    ],
-
-    // Management & Methodologies
-    management: [
-      "Team Leadership",
-      "Software Project Management",
-      "Product Management",
-      "Product Development",
-      "Business Strategy",
-      "Backoffice IT Management",
-      "Agile Methodologies",
-      "Scrum",
-      "Extreme Programming",
-    ],
-
-    // Core Competencies
-    coreCompetencies: [
-      "Full-Stack Development",
-      "Software Development",
-      "Web Development",
-      "Mobile Applications",
-      "Programming",
-    ],
-  };
-
-  // Pre-process skills to normalize names and remove duplicates
-  const normalizedSkills = new Set(
-    skills
-      .map((skill) => normalizeSkillName(skill["Name"]))
-      .filter((skill) => skill !== "") // Remove empty strings (filtered out skills)
-  );
-
-  const categorizedSkills = Array.from(normalizedSkills).reduce(
-    (acc, skillName) => {
-      let placed = false;
-
-      for (const [category, keywords] of Object.entries(categories)) {
-        if (
-          keywords.some((keyword) =>
-            skillName.toLowerCase().includes(keyword.toLowerCase())
-          )
-        ) {
-          if (!acc[category]) acc[category] = [];
-          acc[category].push(skillName);
-          placed = true;
-          break;
-        }
-      }
-
-      if (!placed) {
-        if (!acc.other) acc.other = [];
-        acc.other.push(skillName);
-      }
-
-      if (acc.other) {
-        throw new Error(`No categories for: ${JSON.stringify(acc.other)}`);
-      }
-
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
-
-  return Object.entries(categorizedSkills).map(([category, skills]) => {
-    const formattedCategory = category
-      .split(/(?=[A-Z])/)
-      .join(" ")
-      .replace(/^\w/, (c) => c.toUpperCase());
-    return `${formattedCategory}\n${skills.join(" • ")}`;
-  });
-}
-
-function getPositionSkills(
-  position: Position,
-  positionSkillsMap: PositionSkillMapping
-): string[] {
-  const companySkills = positionSkillsMap[position["Company Name"]];
-  if (!companySkills) return [];
-
-  return companySkills[position["Title"]] || [];
-}
-
-function filterRecentPositions(positions: Position[]): Position[] {
-  return positions.filter((pos) => {
-    const startYear = parseInt(pos["Started On"].split(" ")[1] || "0");
-    return startYear >= 1997;
-  });
-}
-
 export async function generateCV(
-  data: CVData,
+  data: TransformedCVData,
   outputPath: string
 ): Promise<void> {
   const doc = new PDFDocument({
     margin: 50,
     size: "A4",
     font: "Helvetica",
+    bufferPages: true,
+    autoFirstPage: true,
+    compress: true,
+    info: {
+      Title: `${data.profile["First Name"]} ${data.profile["Last Name"]} - CV`,
+      Author: `${data.profile["First Name"]} ${data.profile["Last Name"]}`,
+      Subject: "Curriculum Vitae",
+      Keywords: "CV, Resume, Professional Experience",
+    },
   });
-  const stream = fs.createWriteStream(outputPath);
 
+  const stream = fs.createWriteStream(outputPath);
   doc.pipe(stream);
 
   // Define column widths and spacing
@@ -324,7 +149,7 @@ export async function generateCV(
     .text(data.profile["Summary"], {
       width: rightColumnWidth,
       align: "justify",
-      lineGap: 2,
+      lineGap: 7,
     })
     .moveDown(2);
 
@@ -335,8 +160,7 @@ export async function generateCV(
     .text("Professional Experience", rightColumnStart)
     .moveDown(1);
 
-  const recentPositions = filterRecentPositions(data.positions);
-  recentPositions.forEach((position) => {
+  data.positions.forEach((position) => {
     doc
       .font("Helvetica-Bold")
       .fontSize(13)
@@ -354,6 +178,7 @@ export async function generateCV(
       .font("Helvetica")
       .fontSize(12)
       .fillColor("rgb(80,80,80)")
+      .moveDown(0.5)
       .text(
         `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
         {
@@ -367,12 +192,11 @@ export async function generateCV(
       .text(position["Description"], {
         width: rightColumnWidth,
         align: "justify",
-        lineGap: 2,
+        lineGap: 7,
       });
 
     // Add position-specific skills if available
-    const positionSkills = getPositionSkills(position, data.positionSkillsMap);
-    if (positionSkills.length > 0) {
+    if (position.skills && position.skills.length > 0) {
       doc
         .moveDown(0.5)
         .font("Helvetica")
@@ -381,7 +205,7 @@ export async function generateCV(
         .text("Key Skills: ", {
           continued: true,
         })
-        .text(positionSkills.join(" • "), {
+        .text(position.skills.join(" • "), {
           width: rightColumnWidth,
           align: "left",
         })
@@ -420,7 +244,7 @@ export async function generateCV(
         .text(project["Description"], {
           width: rightColumnWidth,
           align: "justify",
-          lineGap: 2,
+          lineGap: 7,
         })
         .moveDown(1.5);
     });
@@ -448,7 +272,7 @@ export async function generateCV(
       .moveDown(0.5)
       .text(edu["Notes"] || "", {
         width: rightColumnWidth,
-        lineGap: 2,
+        lineGap: 7,
       })
       .moveDown(1.5);
   });
@@ -460,19 +284,17 @@ export async function generateCV(
     .text("Technical Skills", rightColumnStart)
     .moveDown(1);
 
-  const formattedSkills = formatSkills(data.skills);
-  formattedSkills.forEach((skillCategory) => {
-    const [category, skills] = skillCategory.split("\n");
+  data.skillCategories.forEach((category) => {
     doc
       .font("Helvetica-Bold")
       .fontSize(12)
-      .text(category, rightColumnStart, doc.y)
+      .text(category.name, rightColumnStart, doc.y)
       .moveDown(0.5)
       .font("Helvetica")
       .fontSize(11)
-      .text(skills, {
+      .text(category.skills.join(" • "), {
         width: rightColumnWidth,
-        lineGap: 2,
+        lineGap: 7,
       })
       .moveDown(1.5);
   });
