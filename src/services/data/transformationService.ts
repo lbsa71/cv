@@ -135,6 +135,7 @@ function categorizeSkills(skills: string[]): SkillCategory[] {
       if (!placed) {
         if (!acc.other) acc.other = [];
         acc.other.push(skillName);
+        process.stdout.write(`Uncategorized skill: "${skillName}"\n`);
       }
 
       return acc;
@@ -168,7 +169,13 @@ function mapSkillsToPositions(
   return positions.map((position) => {
     const companySkills = positionSkillsMap[position["Company Name"]];
     const skills = companySkills?.[position["Title"]] || [];
-    return { ...position, skills };
+
+    // Normalize and filter skills at the position level
+    const normalizedSkills = skills
+      .map(normalizeSkillName)
+      .filter((skill) => skill !== "");
+
+    return { ...position, skills: normalizedSkills };
   });
 }
 
