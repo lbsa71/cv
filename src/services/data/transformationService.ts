@@ -98,14 +98,20 @@ const SKILL_CATEGORIES = {
 function normalizeSkillName(skill: string): string {
   const skillMap: Record<string, string> = {
     ".NET": "Microsoft.NET",
-    Databases: "", // This will be filtered out as empty
+    Databases: "",
     Telephony: "",
+    Programming: "",
     "SQL Server": "Microsoft SQL Server",
     AWS: "Amazon Web Services (AWS)",
     GCP: "Google Cloud Platform (GCP)",
   };
 
-  return skillMap[skill] ?? skill;
+  const normalizedSkill = skillMap[skill];
+
+  if (typeof normalizedSkill === "undefined") return skill;
+  if (normalizedSkill === "") return "";
+
+  return normalizedSkill;
 }
 
 function categorizeSkills(skills: string[]): SkillCategory[] {

@@ -119,6 +119,24 @@ export async function generateCV(
     });
   }
 
+  doc.moveDown(2);
+
+  const backRef = "https://github.com/lbsa71/cv";
+  doc
+    .font("Helvetica")
+    .fontSize(10)
+    .text("This CV generated with", {
+      width: leftColumnWidth,
+    })
+    .moveDown(0.5)
+    .fillColor("blue")
+    .text(backRef, {
+      width: leftColumnWidth,
+      link: backRef,
+      underline: true,
+    })
+    .fillColor("black");
+
   // Right Column Content
   // Name and Title
   doc
