@@ -64,6 +64,20 @@ export async function generateCV(
     .text("Contact", 50, doc.y)
     .moveDown(1);
 
+  const linkedInRef = `www.linkedin.com/in/lbsa71`;
+
+  // Linkedin
+  doc
+    .font("Helvetica")
+    .fontSize(10)
+    .fillColor("blue")
+    .text(linkedInRef, {
+      link: "https://" + linkedInRef,
+      underline: true,
+    })
+    .fillColor("black")
+    .moveDown(0.5);
+
   // Email
   doc
     .font("Helvetica")
@@ -98,7 +112,7 @@ export async function generateCV(
   const websites = data.profile["Websites"]
     .replace(/[\[\]]/g, "")
     .split(",")
-    .map((site) => site.replace("OTHER:", ""))
+    .map((site) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
     .filter(Boolean);
 
   if (websites.length > 0) {
@@ -160,15 +174,14 @@ export async function generateCV(
   // Summary
   doc
     .font("Helvetica-Bold")
-    .fontSize(16)
+    .fontSize(14)
     .text("Professional Summary", rightColumnStart)
     .moveDown(1)
     .font("Helvetica")
-    .fontSize(11)
+    .fontSize(10)
     .text(data.profile["Summary"], {
       width: rightColumnWidth,
       align: "justify",
-      lineGap: 7,
     })
     .moveDown(2);
 
@@ -207,11 +220,10 @@ export async function generateCV(
       .fillColor("black")
       .moveDown(0.5)
       .font("Helvetica")
-      .fontSize(11)
+      .fontSize(10)
       .text(position["Description"], {
         width: rightColumnWidth,
         align: "justify",
-        lineGap: 7,
       });
 
     // Add position-specific skills if available
@@ -219,7 +231,7 @@ export async function generateCV(
       doc
         .moveDown(0.5)
         .font("Helvetica")
-        .fontSize(10)
+        .fontSize(8)
         .fillColor("rgb(100,100,100)")
         .text("Key Skills: ", {
           continued: true,
@@ -259,11 +271,10 @@ export async function generateCV(
         )
         .moveDown(0.5)
         .font("Helvetica")
-        .fontSize(11)
+        .fontSize(10)
         .text(project["Description"], {
           width: rightColumnWidth,
           align: "justify",
-          lineGap: 7,
         })
         .moveDown(1.5);
     });
@@ -286,12 +297,11 @@ export async function generateCV(
       .font("Helvetica")
       .fontSize(12)
       .text(edu["Degree Name"] || "")
-      .fontSize(11)
+      .fontSize(10)
       .text(`${formatDate(edu["Start Date"])} - ${formatDate(edu["End Date"])}`)
       .moveDown(0.5)
       .text(edu["Notes"] || "", {
         width: rightColumnWidth,
-        lineGap: 7,
       })
       .moveDown(1.5);
   });
@@ -306,14 +316,13 @@ export async function generateCV(
   data.skillCategories.forEach((category) => {
     doc
       .font("Helvetica-Bold")
-      .fontSize(12)
+      .fontSize(11)
       .text(category.name, rightColumnStart, doc.y)
       .moveDown(0.5)
       .font("Helvetica")
-      .fontSize(11)
+      .fontSize(10)
       .text(category.skills.join(" • "), {
         width: rightColumnWidth,
-        lineGap: 7,
       })
       .moveDown(1.5);
   });
