@@ -12,23 +12,37 @@ import {
   SkillCategory,
 } from "../../models/types";
 
+const skillMap: Record<string, string> = {
+  ".NET": "Microsoft.NET",
+  Databases: "",
+  Telephony: "",
+  Programming: "",
+  "Product Development": "Product Management",
+  "SQL Server": "Microsoft SQL Server",
+  AWS: "Amazon Web Services (AWS)",
+  GCP: "Google Cloud Platform (GCP)",
+};
+
 const SKILL_CATEGORIES = {
   "Core Competencies": new Set([
     "Full-Stack Development",
     "Software Development",
     "Web Development",
+    "CI/CD",
     "Mobile Applications",
     "Programming",
     "Test Automation",
     "Mechatronics",
     "Interactive Voice Response (IVR)",
     "Natural Language Processing (NLP)",
+    "Web Services",
+    "Web Applications",
+    "Backoffice IT Management",
   ]),
   "Programming Languages": new Set([
     "JavaScript",
     "TypeScript",
     "Python",
-    "Python (Programming Language)",
     "C",
     "C++",
     "C#",
@@ -36,9 +50,11 @@ const SKILL_CATEGORIES = {
     "PHP",
     "Assembly Language",
     "CSS",
+    "SQL",
     "Tailwind CSS",
+    "Terraform Script",
   ]),
-  "Web Technologies": new Set([
+  Frameworks: new Set([
     "React",
     "React Native",
     "Node.js",
@@ -46,11 +62,9 @@ const SKILL_CATEGORIES = {
     "AngularJS",
     "Microsoft.NET",
     "Mono",
-    "PHP Symphony",
-    "CSS",
-    "ES6",
-    "Web Services",
-    "Web Applications",
+    "Symphony",
+    "Firebase",
+    "Docker",
   ]),
   "Cloud & Infrastructure": new Set([
     "Amazon Web Services (AWS)",
@@ -58,12 +72,15 @@ const SKILL_CATEGORIES = {
     "AWS Aurora",
     "AWS CloudFormation",
     "Infrastructure as code (IaC)",
-    "Terraform",
+    "Terraform Cloud",
+    "GitHub Actions",
+    "GCP Cloud Build",
     "DevOps",
     "Configuration Management",
     "Puppet",
     "Distributed Systems",
     "RabbitMQ",
+    "Serverless",
   ]),
   "Artificial Intelligence": new Set([
     "Large Language Models (LLM)",
@@ -71,8 +88,28 @@ const SKILL_CATEGORIES = {
     "Vector Databases",
     "Fine Tuning",
   ]),
-  Databases: new Set(["Microsoft SQL Server", "MySQL", "Entity Framework"]),
-  "Development Tools": new Set(["Git", "Windows"]),
+  Databases: new Set([
+    "Microsoft SQL Server",
+    "GraphQL",
+    "Firestore",
+    "MongoDB",
+    "AWS Aurora",
+    "AWS DocumentDB",
+    "Firestore",
+    "MySQL",
+    "Entity Framework",
+  ]),
+  Tools: new Set([
+    "Git",
+    "Windows",
+    "Linux",
+    "MacOS",
+    "Expo",
+    "App Center",
+    "Google Workspace",
+    "GitHub Actions",
+    "GCP Cloud Build",
+  ]),
   "Engineering Practices": new Set([
     "Software Architecture",
     "Software Design",
@@ -86,9 +123,7 @@ const SKILL_CATEGORIES = {
     "Team Leadership",
     "Software Project Management",
     "Product Management",
-    "Product Development",
     "Business Strategy",
-    "Backoffice IT Management",
     "Agile Methodologies",
     "Scrum",
     "Extreme Programming",
@@ -96,16 +131,6 @@ const SKILL_CATEGORIES = {
 };
 
 function normalizeSkillName(skill: string): string {
-  const skillMap: Record<string, string> = {
-    ".NET": "Microsoft.NET",
-    Databases: "",
-    Telephony: "",
-    Programming: "",
-    "SQL Server": "Microsoft SQL Server",
-    AWS: "Amazon Web Services (AWS)",
-    GCP: "Google Cloud Platform (GCP)",
-  };
-
   const normalizedSkill = skillMap[skill];
 
   if (typeof normalizedSkill === "undefined") return skill;
