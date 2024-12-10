@@ -18,6 +18,17 @@ function formatDate(date: string): string {
   return date || "Present";
 }
 
+function ensureEnoughSpace(doc: PDFKit.PDFDocument, requiredHeight: number) {
+  const currentY = doc.y;
+  const pageHeight = doc.page.height - doc.page.margins.bottom;
+
+  if (currentY + requiredHeight > pageHeight) {
+    doc.addPage();
+    return true;
+  }
+  return false;
+}
+
 export async function generateCV(
   data: TransformedCVData,
   outputPath: string
@@ -186,25 +197,39 @@ export async function generateCV(
     .moveDown(2);
 
   // Experience
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(16)
-    .text("Professional Experience", rightColumnStart)
-    .moveDown(1);
+  if (data.positions.length > 0) {
+    // Calculate height for first position including section header
+    const firstPosition = data.positions[0];
+    const headerHeight = 50; // Height for section header
+    const firstEntryHeight =
+      100 + // Base height for title and company
+      firstPosition["Description"].length / 5; // Rough estimate for description length
 
-  data.positions.forEach((position) => {
+    // Check if we need a new page for header + first entry
+    if (ensureEnoughSpace(doc, headerHeight + firstEntryHeight)) {
+      doc.text("", rightColumnStart, doc.page.margins.top);
+    }
+
+    // Now write the header
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(16)
+      .text("Professional Experience", rightColumnStart)
+      .moveDown(1);
+
+    // Write first position
     doc
       .font("Helvetica-Bold")
       .fontSize(13)
-      .text(position["Title"], rightColumnStart, doc.y, {
+      .text(firstPosition["Title"], rightColumnStart, doc.y, {
         continued: true,
         width: rightColumnWidth,
       })
       .font("Helvetica")
       .fontSize(11)
       .text(
-        `  (${formatDate(position["Started On"])} - ${formatDate(
-          position["Finished On"]
+        `  (${formatDate(firstPosition["Started On"])} - ${formatDate(
+          firstPosition["Finished On"]
         )})`
       )
       .font("Helvetica")
@@ -212,7 +237,9 @@ export async function generateCV(
       .fillColor("rgb(80,80,80)")
       .moveDown(0.5)
       .text(
-        `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
+        `${firstPosition["Company Name"]} | ${trimLocation(
+          firstPosition["Location"]
+        )}`,
         {
           width: rightColumnWidth,
         }
@@ -221,13 +248,12 @@ export async function generateCV(
       .moveDown(0.5)
       .font("Helvetica")
       .fontSize(10)
-      .text(position["Description"], {
+      .text(firstPosition["Description"], {
         width: rightColumnWidth,
         align: "justify",
       });
 
-    // Add position-specific skills if available
-    if (position.skills && position.skills.length > 0) {
+    if (firstPosition.skills && firstPosition.skills.length > 0) {
       doc
         .moveDown(0.5)
         .font("Helvetica")
@@ -236,7 +262,7 @@ export async function generateCV(
         .text("Key Skills: ", {
           continued: true,
         })
-        .text(position.skills.join(" • "), {
+        .text(firstPosition.skills.join(" • "), {
           width: rightColumnWidth,
           align: "left",
         })
@@ -244,17 +270,127 @@ export async function generateCV(
     }
 
     doc.moveDown(1.5);
-  });
+
+    // Process remaining positions
+    for (let i = 1; i < data.positions.length; i++) {
+      const position = data.positions[i];
+      const estimatedHeight =
+        100 + // Base height for title and company
+        position["Description"].length / 5; // Rough estimate for description length
+
+      if (ensureEnoughSpace(doc, estimatedHeight)) {
+        doc.text("", rightColumnStart, doc.page.margins.top);
+      }
+
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(13)
+        .text(position["Title"], rightColumnStart, doc.y, {
+          continued: true,
+          width: rightColumnWidth,
+        })
+        .font("Helvetica")
+        .fontSize(11)
+        .text(
+          `  (${formatDate(position["Started On"])} - ${formatDate(
+            position["Finished On"]
+          )})`
+        )
+        .font("Helvetica")
+        .fontSize(12)
+        .fillColor("rgb(80,80,80)")
+        .moveDown(0.5)
+        .text(
+          `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
+          {
+            width: rightColumnWidth,
+          }
+        )
+        .fillColor("black")
+        .moveDown(0.5)
+        .font("Helvetica")
+        .fontSize(10)
+        .text(position["Description"], {
+          width: rightColumnWidth,
+          align: "justify",
+        });
+
+      if (position.skills && position.skills.length > 0) {
+        doc
+          .moveDown(0.5)
+          .font("Helvetica")
+          .fontSize(8)
+          .fillColor("rgb(100,100,100)")
+          .text("Key Skills: ", {
+            continued: true,
+          })
+          .text(position.skills.join(" • "), {
+            width: rightColumnWidth,
+            align: "left",
+          })
+          .fillColor("black");
+      }
+
+      doc.moveDown(1.5);
+    }
+  }
 
   // Projects
   if (data.projects.length > 0) {
+    // Calculate height for first project including section header
+    const firstProject = data.projects[0];
+    const headerHeight = 50; // Height for section header
+    const firstEntryHeight =
+      80 + // Base height for title and dates
+      firstProject["Description"].length / 5; // Rough estimate for description length
+
+    // Check if we need a new page for header + first entry
+    if (ensureEnoughSpace(doc, headerHeight + firstEntryHeight)) {
+      doc.text("", rightColumnStart, doc.page.margins.top);
+    }
+
+    // Now write the header
     doc
       .font("Helvetica-Bold")
       .fontSize(16)
       .text("Notable Projects", rightColumnStart)
       .moveDown(1);
 
-    data.projects.forEach((project) => {
+    // Write first project
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(13)
+      .text(firstProject["Title"], rightColumnStart, doc.y, {
+        continued: true,
+        width: rightColumnWidth,
+      })
+      .font("Helvetica")
+      .fontSize(11)
+      .text(
+        `  (${formatDate(firstProject["Started On"])} - ${formatDate(
+          firstProject["Finished On"]
+        )})`
+      )
+      .moveDown(0.5)
+      .font("Helvetica")
+      .fontSize(10)
+      .text(firstProject["Description"], {
+        width: rightColumnWidth,
+        align: "justify",
+      })
+      .moveDown(1.5);
+
+    // Process remaining projects
+    for (let i = 1; i < data.projects.length; i++) {
+      const project = data.projects[i];
+      const estimatedHeight =
+        80 + // Base height for title and dates
+        project["Description"].length / 5; // Rough estimate for description length
+
+      if (ensureEnoughSpace(doc, estimatedHeight)) {
+        doc.text("", rightColumnStart, doc.page.margins.top);
+      }
+
       doc
         .font("Helvetica-Bold")
         .fontSize(13)
@@ -277,55 +413,142 @@ export async function generateCV(
           align: "justify",
         })
         .moveDown(1.5);
-    });
+    }
   }
 
   // Education
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(16)
-    .text("Education", rightColumnStart)
-    .moveDown(1);
+  if (data.education.length > 0) {
+    // Calculate height for first education entry including section header
+    const firstEdu = data.education[0];
+    const headerHeight = 50; // Height for section header
+    const firstEntryHeight =
+      100 + // Base height for school and degree
+      (firstEdu["Notes"] || "").length / 5; // Rough estimate for notes length
 
-  data.education.forEach((edu) => {
+    // Check if we need a new page for header + first entry
+    if (ensureEnoughSpace(doc, headerHeight + firstEntryHeight)) {
+      doc.text("", rightColumnStart, doc.page.margins.top);
+    }
+
+    // Now write the header
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(16)
+      .text("Education", rightColumnStart)
+      .moveDown(1);
+
+    // Write first education entry
     doc
       .font("Helvetica-Bold")
       .fontSize(13)
-      .text(edu["School Name"], rightColumnStart, doc.y, {
+      .text(firstEdu["School Name"], rightColumnStart, doc.y, {
         width: rightColumnWidth,
       })
       .font("Helvetica")
       .fontSize(12)
-      .text(edu["Degree Name"] || "")
+      .text(firstEdu["Degree Name"] || "")
       .fontSize(10)
-      .text(`${formatDate(edu["Start Date"])} - ${formatDate(edu["End Date"])}`)
+      .text(
+        `${formatDate(firstEdu["Start Date"])} - ${formatDate(
+          firstEdu["End Date"]
+        )}`
+      )
       .moveDown(0.5)
-      .text(edu["Notes"] || "", {
+      .text(firstEdu["Notes"] || "", {
         width: rightColumnWidth,
       })
       .moveDown(1.5);
-  });
+
+    // Process remaining education entries
+    for (let i = 1; i < data.education.length; i++) {
+      const edu = data.education[i];
+      const estimatedHeight =
+        100 + // Base height for school and degree
+        (edu["Notes"] || "").length / 5; // Rough estimate for notes length
+
+      if (ensureEnoughSpace(doc, estimatedHeight)) {
+        doc.text("", rightColumnStart, doc.page.margins.top);
+      }
+
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(13)
+        .text(edu["School Name"], rightColumnStart, doc.y, {
+          width: rightColumnWidth,
+        })
+        .font("Helvetica")
+        .fontSize(12)
+        .text(edu["Degree Name"] || "")
+        .fontSize(10)
+        .text(
+          `${formatDate(edu["Start Date"])} - ${formatDate(edu["End Date"])}`
+        )
+        .moveDown(0.5)
+        .text(edu["Notes"] || "", {
+          width: rightColumnWidth,
+        })
+        .moveDown(1.5);
+    }
+  }
 
   // Skills
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(16)
-    .text("Technical Skills", rightColumnStart)
-    .moveDown(1);
+  if (data.skillCategories.length > 0) {
+    // Calculate height for first skill category including section header
+    const firstCategory = data.skillCategories[0];
+    const headerHeight = 50; // Height for section header
+    const firstEntryHeight =
+      60 + // Base height for category name
+      firstCategory.skills.length * 2; // Rough estimate based on number of skills
 
-  data.skillCategories.forEach((category) => {
+    // Check if we need a new page for header + first entry
+    if (ensureEnoughSpace(doc, headerHeight + firstEntryHeight)) {
+      doc.text("", rightColumnStart, doc.page.margins.top);
+    }
+
+    // Now write the header
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(16)
+      .text("Technical Skills", rightColumnStart)
+      .moveDown(1);
+
+    // Write first skill category
     doc
       .font("Helvetica-Bold")
       .fontSize(11)
-      .text(category.name, rightColumnStart, doc.y)
+      .text(firstCategory.name, rightColumnStart, doc.y)
       .moveDown(0.5)
       .font("Helvetica")
       .fontSize(10)
-      .text(category.skills.join(" • "), {
+      .text(firstCategory.skills.join(" • "), {
         width: rightColumnWidth,
       })
       .moveDown(1.5);
-  });
+
+    // Process remaining skill categories
+    for (let i = 1; i < data.skillCategories.length; i++) {
+      const category = data.skillCategories[i];
+      const estimatedHeight =
+        60 + // Base height for category name
+        category.skills.length * 2; // Rough estimate based on number of skills
+
+      if (ensureEnoughSpace(doc, estimatedHeight)) {
+        doc.text("", rightColumnStart, doc.page.margins.top);
+      }
+
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(11)
+        .text(category.name, rightColumnStart, doc.y)
+        .moveDown(0.5)
+        .font("Helvetica")
+        .fontSize(10)
+        .text(category.skills.join(" • "), {
+          width: rightColumnWidth,
+        })
+        .moveDown(1.5);
+    }
+  }
 
   doc.end();
 
