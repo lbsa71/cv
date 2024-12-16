@@ -1,14 +1,5 @@
-import type { TransformedCVData } from "../../models/types";
+import type { RawData, TransformedCVData } from "../../models/types";
 
-type RawData = {
-  "Profile.csv": any[];
-  "Positions.csv": any[];
-  "Projects.csv"?: any[];
-  "Education.csv"?: any[];
-  "Email Addresses.csv": any[];
-  "Languages.csv"?: any[];
-  image?: string;
-};
 
 export function transformData(rawData: RawData): TransformedCVData {
   return {

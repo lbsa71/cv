@@ -65,6 +65,16 @@ export type SkillCategory = {
   skills: string[];
 };
 
+export type RawData = {
+    "Profile.csv"?: any[];
+    "Positions.csv"?: any[];
+    "Projects.csv"?: any[];
+    "Education.csv"?: any[];
+    "Email Addresses.csv"?: any[];
+    "Languages.csv"?: any[];
+    image?: string;
+  };
+
 export type TransformedCVData = {
   profile: Profile;
   positions: PositionWithSkills[];

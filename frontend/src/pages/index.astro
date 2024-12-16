@@ -1,23 +1,22 @@
 <html>
   <head>
     <title>CV Data Upload</title>
-    <!-- Include jszip and jspdf from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </head>
   <body>
     <h1>Upload and Process CV Data</h1>
     <input type="file" accept=".zip" id="fileInput" />
     <button onclick="handleFileUploadAndProcess()">Start</button>
 
-    <script type="module">
-      import { generateCV } from '@/services/pdf/pdfGenerator';
-      import { parseCSV, transformData } from '@/services/data/transformationService';
+    <script>
+      import { generateCV } from '../services/pdf/pdfGenerator';
+      import { parseCSV, transformData } from '../services/data/transformationService';
+      import JSZip from 'jszip';
+import type { RawData } from '@/models/types';
 
       // Function to handle file upload and processing
       async function handleFileUploadAndProcess() {
         console.log('Handling file upload');
-        const fileInput = document.getElementById('fileInput');
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
         const file = fileInput.files[0];
         if (!file) {
           console.error('No file selected');
@@ -27,7 +26,7 @@
         try {
           const zip = new JSZip();
           const zipContent = await zip.loadAsync(file);
-          const rawData = {};
+          const rawData : RawData = {};
 
           for (const fileName of Object.keys(zipContent.files)) {
             console.log('Processing file:', fileName);

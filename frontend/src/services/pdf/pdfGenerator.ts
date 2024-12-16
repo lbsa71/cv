@@ -4,18 +4,8 @@ import type {
   PositionWithSkills,
 } from "../../models/types";
 
+import * as jspdf from 'jspdf';
 // Declare proper types for jsPDF UMD module
-declare global {
-  interface Window {
-    jspdf: {
-      jsPDF: new (options: {
-        orientation: "portrait" | "landscape";
-        unit: string;
-        format: string;
-      }) => any;
-    };
-  }
-}
 
 function trimLocation(location: string): string {
   const locationMap: Record<string, string> = {
@@ -34,7 +24,7 @@ function formatDate(date: string): string {
 
 export async function generateCV(data: TransformedCVData): Promise<void> {
   // Use the UMD version of jsPDF loaded from CDN
-  const doc = new window.jspdf.jsPDF({
+  const doc = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "pt",
     format: "a4",
