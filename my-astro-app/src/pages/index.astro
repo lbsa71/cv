@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <title>CV Data Upload</title>
+    <!-- Include jszip and jspdf from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      // Function to parse CSV data
+      function parseCSV(text) {
+        console.log('Parsing CSV data');
+        const rows = text.split('\\n');
+        const headers = rows[0].split(',');
+        return rows.slice(1).map(row => {
+          const values = row.split(',');
+          return headers.reduce((obj, header, index) => {
+            obj[header] = values[index];
+            return obj;
+          }, {});
+        });
+      }
+
+      // Function to handle file upload and processing
+      async function handleFileUploadAndProcess() {
+        console.log('Handling file upload');
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+          console.error('No file selected');
+          return;
+        }
+
+        const zip = new JSZip();
+        const zipContent = await zip.loadAsync(file);
+        const data = {};
+
+        for (const fileName of Object.keys(zipContent.files)) {
+          console.log('Processing file:', fileName);
+          if (fileName.endsWith('.csv')) {
+            const fileData = await zipContent.files[fileName].async('text');
+            data[fileName] = parseCSV(fileData);
+          } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+            const imageData = await zipContent.files[fileName].async('base64');
+            data.image = `data:image/jpeg;base64,${imageData}`;
+          }
+        }
+
+        console.log('Data processed:', data);
+        generatePDF(data);
+      }
+
+      // Function to generate PDF
+      function generatePDF(data) {
+        console.log('Generating PDF');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text('CV Data', 10, 10);
+
+        const profile = data['Profile.csv'] && data['Profile.csv'][0];
+        const email = data['Email Addresses.csv'] && data['Email Addresses.csv'][0];
+
+        if (profile) {
+          doc.text(`Name: ${profile.Name || 'N/A'}`, 10, 20);
+        } else {
+          console.warn('Profile data is missing');
+        }
+
+        if (email) {
+          doc.text(`Email: ${email.Email || 'N/A'}`, 10, 30);
+        } else {
+          console.warn('Email data is missing');
+        }
+
+        if (data['Positions.csv']) {
+          doc.text('Positions:', 10, 40);
+          data['Positions.csv'].forEach((position, index) => {
+            doc.text(`${position['Title'] || 'N/A'} at ${position['Company Name'] || 'N/A'}`, 10, 50 + index * 10);
+          });
+        } else {
+          console.warn('Positions data is missing');
+        }
+
+        // Add more sections as needed...
+
+        console.log('Saving PDF');
+        doc.save('cv.pdf');
+      }
+
+      window.handleFileUploadAndProcess = handleFileUploadAndProcess;
+    </script>
+  </head>
+  <body>
+    <h1>Upload and Process CV Data</h1>
+    <input type="file" accept=".zip" id="fileInput" />
+    <button onclick="handleFileUploadAndProcess()">Start</button>
+  </body>
+</html>
