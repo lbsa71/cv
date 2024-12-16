@@ -4,16 +4,18 @@
     <!-- Include jszip and jspdf from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
+    <script type="module">
+      import { generateCV } from '../services/pdf/pdfGenerator';
+
       // Function to parse CSV data
       function parseCSV(text) {
         console.log('Parsing CSV data');
-        const rows = text.split('\\n');
+        const rows = text.split('\n');
         const headers = rows[0].split(',');
         return rows.slice(1).map(row => {
-          const values = row.split(',');
+          const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
           return headers.reduce((obj, header, index) => {
-            obj[header] = values[index];
+            obj[header] = values[index] ? values[index].replace(/(^"|"$)/g, '') : '';
             return obj;
           }, {});
         });
@@ -45,44 +47,8 @@
         }
 
         console.log('Data processed:', data);
-        generatePDF(data);
-      }
-
-      // Function to generate PDF
-      function generatePDF(data) {
-        console.log('Generating PDF');
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text('CV Data', 10, 10);
-
-        const profile = data['Profile.csv'] && data['Profile.csv'][0];
-        const email = data['Email Addresses.csv'] && data['Email Addresses.csv'][0];
-
-        if (profile) {
-          doc.text(`Name: ${profile.Name || 'N/A'}`, 10, 20);
-        } else {
-          console.warn('Profile data is missing');
-        }
-
-        if (email) {
-          doc.text(`Email: ${email.Email || 'N/A'}`, 10, 30);
-        } else {
-          console.warn('Email data is missing');
-        }
-
-        if (data['Positions.csv']) {
-          doc.text('Positions:', 10, 40);
-          data['Positions.csv'].forEach((position, index) => {
-            doc.text(`${position['Title'] || 'N/A'} at ${position['Company Name'] || 'N/A'}`, 10, 50 + index * 10);
-          });
-        } else {
-          console.warn('Positions data is missing');
-        }
-
-        // Add more sections as needed...
-
-        console.log('Saving PDF');
-        doc.save('cv.pdf');
+        // Call the generateCV function from pdfGenerator.ts here
+        generateCV(data);
       }
 
       window.handleFileUploadAndProcess = handleFileUploadAndProcess;
