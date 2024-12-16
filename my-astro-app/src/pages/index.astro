@@ -4,6 +4,12 @@
     <!-- Include jszip and jspdf from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </head>
+  <body>
+    <h1>Upload and Process CV Data</h1>
+    <input type="file" accept=".zip" id="fileInput" />
+    <button onclick="handleFileUploadAndProcess()">Start</button>
+
     <script type="module">
       import { generateCV } from '../services/pdf/pdfGenerator';
 
@@ -47,16 +53,10 @@
         }
 
         console.log('Data processed:', data);
-        // Call the generateCV function from pdfGenerator.ts here
         generateCV(data);
       }
 
       window.handleFileUploadAndProcess = handleFileUploadAndProcess;
     </script>
-  </head>
-  <body>
-    <h1>Upload and Process CV Data</h1>
-    <input type="file" accept=".zip" id="fileInput" />
-    <button onclick="handleFileUploadAndProcess()">Start</button>
   </body>
 </html>
