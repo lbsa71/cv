@@ -11,21 +11,8 @@
     <button onclick="handleFileUploadAndProcess()">Start</button>
 
     <script type="module">
-      import { generateCV } from '../services/pdf/pdfGenerator';
-
-      // Function to parse CSV data
-      function parseCSV(text) {
-        console.log('Parsing CSV data');
-        const rows = text.split('\n');
-        const headers = rows[0].split(',');
-        return rows.slice(1).map(row => {
-          const values = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-          return headers.reduce((obj, header, index) => {
-            obj[header] = values[index] ? values[index].replace(/(^"|"$)/g, '') : '';
-            return obj;
-          }, {});
-        });
-      }
+      import { generateCV } from '@/services/pdf/pdfGenerator';
+      import { parseCSV, transformData } from '@/services/data/transformationService';
 
       // Function to handle file upload and processing
       async function handleFileUploadAndProcess() {
@@ -37,25 +24,34 @@
           return;
         }
 
-        const zip = new JSZip();
-        const zipContent = await zip.loadAsync(file);
-        const data = {};
+        try {
+          const zip = new JSZip();
+          const zipContent = await zip.loadAsync(file);
+          const rawData = {};
 
-        for (const fileName of Object.keys(zipContent.files)) {
-          console.log('Processing file:', fileName);
-          if (fileName.endsWith('.csv')) {
-            const fileData = await zipContent.files[fileName].async('text');
-            data[fileName] = parseCSV(fileData);
-          } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
-            const imageData = await zipContent.files[fileName].async('base64');
-            data.image = `data:image/jpeg;base64,${imageData}`;
+          for (const fileName of Object.keys(zipContent.files)) {
+            console.log('Processing file:', fileName);
+            if (fileName.endsWith('.csv')) {
+              const fileData = await zipContent.files[fileName].async('text');
+              const baseName = fileName.split('/').pop(); // Remove any directory path
+              rawData[baseName] = parseCSV(fileData);
+            } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+              const imageData = await zipContent.files[fileName].async('base64');
+              rawData.image = `data:image/jpeg;base64,${imageData}`;
+            }
           }
-        }
 
-        console.log('Data processed:', data);
-        generateCV(data);
+          console.log('Raw data processed:', rawData);
+          const transformedData = transformData(rawData);
+          console.log('Transformed data:', transformedData);
+          
+          await generateCV(transformedData);
+        } catch (error) {
+          console.error('Error processing data:', error);
+        }
       }
 
+      // Make the function available to the onclick handler
       window.handleFileUploadAndProcess = handleFileUploadAndProcess;
     </script>
   </body>
