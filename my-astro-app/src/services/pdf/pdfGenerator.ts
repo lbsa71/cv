@@ -1,5 +1,6 @@
-import jsPDF from "jspdf";
 import type { TransformedCVData } from "../../models/types";
+
+declare const jspdf: any;
 
 function trimLocation(location: string): string {
   const locationMap: Record<string, string> = {
@@ -17,6 +18,8 @@ function formatDate(date: string): string {
 }
 
 export async function generateCV(data: TransformedCVData): Promise<void> {
+  // Use the UMD version of jsPDF loaded from CDN
+  const { jsPDF } = jspdf;
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -30,8 +33,9 @@ export async function generateCV(data: TransformedCVData): Promise<void> {
   const rightColumnStart = leftColumnWidth + 70;
 
   // Left Column - Profile Picture
-  const imagePath = "images/default.jpg";
-  doc.addImage(imagePath, "JPEG", 50, 50, leftColumnWidth, leftColumnWidth);
+  if (data.image) {
+    doc.addImage(data.image, "JPEG", 50, 50, leftColumnWidth, leftColumnWidth);
+  }
 
   // Left Column - Contact Info
   doc.setFont("Helvetica", "bold");
@@ -59,11 +63,13 @@ export async function generateCV(data: TransformedCVData): Promise<void> {
     doc.setFontSize(14);
     doc.text("Languages", 50, 300);
 
-    data.languages.forEach((lang: { Name: string; Proficiency: string }, index: number) => {
-      doc.setFont("Helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text(`${lang.Name}: ${lang.Proficiency}`, 50, 320 + index * 20);
-    });
+    data.languages.forEach(
+      (lang: { Name: string; Proficiency: string }, index: number) => {
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`${lang.Name}: ${lang.Proficiency}`, 50, 320 + index * 20);
+      }
+    );
   }
 
   // Websites

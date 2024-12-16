@@ -73,4 +73,5 @@ export type TransformedCVData = {
   email: { "Email Address": string };
   languages: Language[];
   skillCategories: SkillCategory[];
+  image?: string; // Base64 encoded image data
 };
