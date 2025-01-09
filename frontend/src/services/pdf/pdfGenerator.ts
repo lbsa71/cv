@@ -2,6 +2,7 @@ import type {
   TransformedCVData,
   Language,
   PositionWithSkills,
+  PositionSkillMapping,
 } from "../../models/types";
 
 import * as jspdf from 'jspdf';
@@ -22,12 +23,25 @@ function formatDate(date: string): string {
   return date || "Present";
 }
 
-export async function generateCV(data: TransformedCVData): Promise<void> {
-  // Use the UMD version of jsPDF loaded from CDN
+function ensureEnoughSpace(doc: any, requiredHeight: number, currentY: number) {
+  const pageHeight = doc.internal.pageSize.getHeight() - 50; // 50pt margin
+
+  if (currentY + requiredHeight > pageHeight) {
+    doc.addPage();
+    return 50; // Return new Y position at top of page
+  }
+  return currentY;
+}
+
+export async function generateCV(
+  data: TransformedCVData,
+  positionSkillsMap: PositionSkillMapping = {}
+): Promise<void> {
   const doc = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "pt",
     format: "a4",
+    compress: true,
   });
 
   // Define column widths and spacing
@@ -122,39 +136,68 @@ export async function generateCV(data: TransformedCVData): Promise<void> {
 
   // Experience
   if (data.positions.length > 0) {
+    let currentY = 180;
+    
+    // Professional Experience header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("Professional Experience", rightColumnStart, 180);
+    doc.text("Professional Experience", rightColumnStart, currentY);
+    currentY += 30;
 
-    data.positions.forEach((position: PositionWithSkills, index: number) => {
-      const yOffset = 200 + index * 60;
+    // Process each position
+    for (const position of data.positions) {
+      const estimatedHeight = 120 + position["Description"].length / 5;
+      currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
+
+      // Title and dates
       doc.setFont("Helvetica", "bold");
       doc.setFontSize(13);
-      doc.text(position["Title"], rightColumnStart, yOffset);
+      const titleWidth = doc.getTextWidth(position["Title"]);
+      doc.text(position["Title"], rightColumnStart, currentY);
+      
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(11);
-      doc.text(
-        `(${formatDate(position["Started On"])} - ${formatDate(
-          position["Finished On"]
-        )})`,
-        rightColumnStart + 200,
-        yOffset
-      );
+      const dateText = `(${formatDate(position["Started On"])} - ${formatDate(position["Finished On"])})`;
+      doc.text(dateText, rightColumnStart + titleWidth + 10, currentY);
+      
+      currentY += 20;
+
+      // Company and location
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(12);
       doc.setTextColor("rgb(80,80,80)");
       doc.text(
         `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
         rightColumnStart,
-        yOffset + 20
+        currentY
       );
       doc.setTextColor("black");
+      
+      currentY += 20;
+
+      // Description
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
-      doc.text(position["Description"], rightColumnStart, yOffset + 40, {
-        maxWidth: rightColumnWidth,
-      });
-    });
+      const splitDescription = doc.splitTextToSize(position["Description"], rightColumnWidth);
+      doc.text(splitDescription, rightColumnStart, currentY);
+      
+      currentY += splitDescription.length * 12 + 20;
+
+      // Add normalized skills from the position
+      if (position.skills && position.skills.length > 0) {
+        currentY = ensureEnoughSpace(doc, 40, currentY);
+        
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor("rgb(100,100,100)");
+        const skillsText = "Key Skills: " + position.skills.join(" • ");
+        const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth);
+        doc.text(splitSkills, rightColumnStart, currentY);
+        doc.setTextColor("black");
+        
+        currentY += splitSkills.length * 10 + 30;
+      }
+    }
   }
 
   // Trigger automatic download

@@ -4,29 +4,47 @@
   </head>
   <body>
     <h1>Upload and Process CV Data</h1>
-    <input type="file" accept=".zip" id="fileInput" />
+    <div>
+      <label for="zipInput">CV Data (ZIP):</label>
+      <input type="file" accept=".zip" id="zipInput" />
+    </div>
+    <div>
+      <label for="jsonInput">Position Skills Map (JSON):</label>
+      <input type="file" accept=".json" id="jsonInput" />
+    </div>
     <button onclick="handleFileUploadAndProcess()">Start</button>
 
     <script>
       import { generateCV } from '../services/pdf/pdfGenerator';
       import { parseCSV, transformData } from '../services/data/transformationService';
       import JSZip from 'jszip';
-import type { RawData } from '@/models/types';
+      import type { RawData, PositionSkillMapping } from '../models/types';
+
+      // Declare window interface
+      declare global {
+        interface Window {
+          handleFileUploadAndProcess: () => Promise<void>;
+        }
+      }
 
       // Function to handle file upload and processing
       async function handleFileUploadAndProcess() {
         console.log('Handling file upload');
-        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-        const file = fileInput.files[0];
-        if (!file) {
-          console.error('No file selected');
+        const zipInput = document.getElementById('zipInput') as HTMLInputElement;
+        const jsonInput = document.getElementById('jsonInput') as HTMLInputElement;
+        const zipFile = zipInput.files[0];
+        const jsonFile = jsonInput.files[0];
+
+        if (!zipFile) {
+          console.error('No ZIP file selected');
           return;
         }
 
         try {
+          // Process ZIP file
           const zip = new JSZip();
-          const zipContent = await zip.loadAsync(file);
-          const rawData : RawData = {};
+          const zipContent = await zip.loadAsync(zipFile);
+          const rawData: RawData = {};
 
           for (const fileName of Object.keys(zipContent.files)) {
             console.log('Processing file:', fileName);
@@ -40,11 +58,18 @@ import type { RawData } from '@/models/types';
             }
           }
 
+          // Process JSON file if provided
+          let positionSkillsMap: PositionSkillMapping = {};
+          if (jsonFile) {
+            const jsonContent = await jsonFile.text();
+            positionSkillsMap = JSON.parse(jsonContent);
+          }
+
           console.log('Raw data processed:', rawData);
-          const transformedData = transformData(rawData);
+          const transformedData = transformData(rawData, positionSkillsMap);
           console.log('Transformed data:', transformedData);
           
-          await generateCV(transformedData);
+          await generateCV(transformedData, positionSkillsMap);
         } catch (error) {
           console.error('Error processing data:', error);
         }
