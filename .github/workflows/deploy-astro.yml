@@ -1,11 +1,13 @@
 name: Deploy Astro App
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'frontend/**'
+      - '.github/workflows/deploy-astro.yml'
 
 jobs:
   build-and-deploy:
