@@ -1,0 +1,39 @@
+name: Deploy Astro App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies (frontend)
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build Astro app (frontend)
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install -y gh
+
+      - name: Configure GitHub CLI
+        run: gh auth login --with-token <<< ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
+
+      - name: Deploy to GitHub Pages
+        run: |
+          cd frontend/dist
+          gh repo sync lbsa71/lbsa71.github.io --source . --force
