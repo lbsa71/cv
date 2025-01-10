@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
-          git clone https://${secrets.GH_PAGES_DEPLOY_TOKEN}@github.com/lbsa71/lbsa71.github.io.git --branch=master gh-pages
+          git clone https://${{secrets.GH_PAGES_DEPLOY_TOKEN}}@github.com/lbsa71/lbsa71.github.io.git --branch=master gh-pages
           rm -rf gh-pages/linkedin-cv-export/*
           cp -r frontend/dist/. gh-pages/linkedin-cv-export/
           cd gh-pages
