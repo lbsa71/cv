@@ -36,6 +36,4 @@ jobs:
         run: gh auth login --with-token <<< ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
 
       - name: Deploy to GitHub Pages
-        run: |
-          cd frontend/dist
-          gh repo sync lbsa71/lbsa71.github.io --source . --force
+        run: gh repo sync lbsa71/lbsa71.github.io --source frontend/dist --force
