@@ -1,18 +1,95 @@
 <html>
   <head>
     <title>CV Data Upload</title>
-  </head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+        color: #333;
+        line-height: 1.6;
+      }
+      h1, h2 {
+        color: #444;
+        text-align: center;
+      }
+      p, ol, section {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 10px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      ol {
+        padding-left: 20px;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      input[type="file"] {
+        display: block;
+        margin-bottom: 20px;
+      }
+      button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
   <body>
-    <h1>Upload and Process CV Data</h1>
-    <div>
-      <label for="zipInput">CV Data (ZIP):</label>
-      <input type="file" accept=".zip" id="zipInput" />
-    </div>
-    <div>
-      <label for="jsonInput">Position Skills Map (JSON):</label>
-      <input type="file" accept=".json" id="jsonInput" />
-    </div>
-    <button onclick="handleFileUploadAndProcess()">Start</button>
+    <h1>LinkedIn Data Exporter</h1>
+    <p>This tool provides a superior alternative to LinkedIn's built-in data exporter, offering a more comprehensive and user-friendly experience.</p>
+    <p>Follow the steps below to upload your LinkedIn data and generate a professional CV.</p>
+    <section>
+      <h2>Step-by-Step Instructions</h2>
+      <ol>
+        <li>Go to LinkedIn and navigate to Settings & Privacy.</li>
+        <li>Under the Data Privacy section, select "Get a copy of your data".</li>
+        <li>Choose the data you want to export and request the archive.</li>
+        <li>Once you receive the email, download the ZIP file.</li>
+        <li>Upload the ZIP file below.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Upload Your Files</h2>
+      <div>
+        <label for="zipInput"><strong>Upload CV Data (ZIP):</strong></label>
+        <input type="file" accept=".zip" id="zipInput" />
+      </div>
+      <div>
+        <label for="jsonInput"><strong>Upload Position Skills Map (JSON) (Optional):</strong></label>
+        <input type="file" accept=".json" id="jsonInput" />
+      </div>
+      <button onclick="handleFileUploadAndProcess()">Start Processing</button>
+    </section>
+    <section>
+      <h2>JSON File Format</h2>
+      <p>If you choose to upload a JSON file, ensure it follows the format shown in the example below:</p>
+      <pre>
+        &#123;
+          "position": "Software Engineer",
+          "skills": ["JavaScript", "React", "Node.js"]
+        &#125;
+      </pre>
+    </section>
 
     <script>
       import { generateCV } from '../services/pdf/pdfGenerator';
