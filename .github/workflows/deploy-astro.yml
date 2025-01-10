@@ -29,11 +29,8 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      - name: Install GitHub CLI
-        run: sudo apt-get update && sudo apt-get install -y gh
-
-      - name: Configure GitHub CLI
-        run: gh auth login --with-token <<< ${{ secrets.GH_PAGES_DEPLOY_TOKEN }}
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
 
       - name: Deploy to GitHub Pages
-        run: gh repo sync lbsa71/lbsa71.github.io --source frontend/dist --force
+        run: rsync -avz --delete ./frontend/dist/* https://lbsa71:${{ secrets.GH_PAGES_DEPLOY_TOKEN }}@github.com/lbsa71/lbsa71.github.io/
