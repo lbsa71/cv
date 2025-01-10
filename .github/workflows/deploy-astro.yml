@@ -29,8 +29,9 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      - name: Install rsync
-        run: sudo apt-get update && sudo apt-get install -y rsync
-
       - name: Deploy to GitHub Pages
-        run: rsync -avz --delete ./frontend/dist/* https://lbsa71:${{ secrets.GH_PAGES_DEPLOY_TOKEN }}@github.com/lbsa71/lbsa71.github.io/
+        run: 
+          # TBD: Here I want to check out the lbsa71.github.io github repo 'master' branch, 
+          # replace the /linkedin-cv-export folder with the contents of frontend/dist
+          # commit, and push the changes, using the 
+          # secrets.GH_PAGES_DEPLOY_TOKEN
