@@ -30,8 +30,13 @@ jobs:
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        run: 
-          # TBD: Here I want to check out the lbsa71.github.io github repo 'master' branch, 
-          # replace the /linkedin-cv-export folder with the contents of frontend/dist
-          # commit, and push the changes, using the 
-          # secrets.GH_PAGES_DEPLOY_TOKEN
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git clone https://${secrets.GH_PAGES_DEPLOY_TOKEN}@github.com/lbsa71/lbsa71.github.io.git --branch=master gh-pages
+          rm -rf gh-pages/linkedin-cv-export/*
+          cp -r frontend/dist/. gh-pages/linkedin-cv-export/
+          cd gh-pages
+          git add .
+          git commit -m "Deploy new build"
+          git push origin master
