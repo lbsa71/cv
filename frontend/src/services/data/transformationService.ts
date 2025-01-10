@@ -1,4 +1,4 @@
-import type { RawData, TransformedCVData, PositionSkillMapping } from "../../models/types";
+import type { RawData, TransformedCVData, Config } from "../../models/types";
 
 const skillMap: Record<string, string> = {
   ".NET": "Microsoft.NET",
@@ -221,9 +221,14 @@ export function parseCSV(text: string): any[] {
 
 export function transformData(
   rawData: RawData,
-  positionSkillsMap: PositionSkillMapping = {}
+  config: Config
 ): TransformedCVData {
   // Filter recent positions and map skills
+
+  const positionSkillsMap = config.positions;
+
+  console.log("positionSkillsMap", positionSkillsMap);
+
   const positions = filterRecentPositions(rawData["Positions.csv"]).map((pos) => {
     const companySkills = positionSkillsMap[pos["Company Name"]];
     const positionSkills = companySkills ? companySkills[pos["Title"]] : [];

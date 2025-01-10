@@ -136,21 +136,18 @@
           }
 
           // Process JSON file if provided
-          let positionSkillsMap: PositionSkillMapping = {};
+          let config: Config | undefined;
+
           if (jsonFile) {
             const jsonContent = await jsonFile.text();
-            const config = JSON.parse(jsonContent);
-
-            console.log('Processing JSON file:', config);
-
-            positionSkillsMap = config.positions;
+            config = JSON.parse(jsonContent);
           }
 
           console.log('Raw data processed:', rawData);
-          const transformedData = transformData(rawData, positionSkillsMap);
+          const transformedData = transformData(rawData, config);
           console.log('Transformed data:', transformedData);
           
-          await generateCV(transformedData, positionSkillsMap);
+          await generateCV(transformedData, config);
         } catch (error) {
           console.error('Error processing data:', error);
         }

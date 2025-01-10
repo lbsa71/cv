@@ -1,21 +1,21 @@
 import type {
   TransformedCVData,
   Language,
-  PositionWithSkills,
-  PositionSkillMapping,
+  Config,
+  LocationMap
 } from "../../models/types";
 
 import * as jspdf from 'jspdf';
 // Declare proper types for jsPDF UMD module
 
-function trimLocation(location: string): string {
-  const locationMap: Record<string, string> = {
-    "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
-    "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
-    "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
-    "Göteborg, Sverige": "Gothenburg, Sweden",
-  };
+const defaultLocationMap: Record<string, string> = {
+  "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
+  "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
+  "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
+  "Göteborg, Sverige": "Gothenburg, Sweden",
+};
 
+function trimLocation(location: string, locationMap: LocationMap = defaultLocationMap): string {
   return locationMap[location] || location;
 }
 
@@ -35,7 +35,7 @@ function ensureEnoughSpace(doc: any, requiredHeight: number, currentY: number) {
 
 export async function generateCV(
   data: TransformedCVData,
-  positionSkillsMap: PositionSkillMapping = {}
+  config: Config
 ): Promise<void> {
   const doc = new jspdf.jsPDF({
     orientation: "portrait",
@@ -167,7 +167,7 @@ export async function generateCV(
       doc.setFontSize(12);
       doc.setTextColor("rgb(80,80,80)");
       doc.text(
-        `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
+        `${position["Company Name"]} | ${trimLocation(position["Location"], config.locationMap)}`,
         rightColumnStart,
         currentY
       );
