@@ -55,3 +55,22 @@ export type PositionSkillMapping = {
     [position: string]: string[];
   };
 };
+
+export type SkillsMap = {
+  [skill: string]: string;
+};
+
+export type SkillCategories = {
+  [category: string]: string[];
+};
+
+export type LocationMap = {
+  [location: string]: string;
+};
+
+export type Config = {
+  skillsMap: SkillsMap;
+  skillCategories: SkillCategories;
+  locationMap: LocationMap;
+  positions: PositionSkillMapping;
+};

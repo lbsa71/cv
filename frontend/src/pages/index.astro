@@ -95,7 +95,7 @@
       import { generateCV } from '../services/pdf/pdfGenerator';
       import { parseCSV, transformData } from '../services/data/transformationService';
       import JSZip from 'jszip';
-      import type { RawData, PositionSkillMapping } from '../models/types';
+      import type { RawData, PositionSkillMapping, Config } from '../models/types';
 
       // Declare window interface
       declare global {
@@ -139,7 +139,11 @@
           let positionSkillsMap: PositionSkillMapping = {};
           if (jsonFile) {
             const jsonContent = await jsonFile.text();
-            positionSkillsMap = JSON.parse(jsonContent);
+            const config = JSON.parse(jsonContent);
+
+            console.log('Processing JSON file:', config);
+
+            positionSkillsMap = config.positions;
           }
 
           console.log('Raw data processed:', rawData);

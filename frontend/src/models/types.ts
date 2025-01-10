@@ -56,13 +56,6 @@ export type PositionSkillMapping = {
   };
 };
 
-export type SkillsConfig = {
-  skillsMap: Record<string, string>;
-  skillCategories: Record<string, string[]>;
-  locationMap: Record<string, string>;
-  positions: PositionSkillMapping;
-};
-
 export type PositionWithSkills = Position & {
   skills: string[];
 };
@@ -91,4 +84,15 @@ export type TransformedCVData = {
   languages: Language[];
   skillCategories: SkillCategory[];
   image?: string; // Base64 encoded image data
+};
+
+export type LocationMap = {
+  [location: string]: string;
+};
+
+export type Config = {
+  skillsMap: PositionSkillMapping;
+  skillCategories: SkillCategory;
+  locationMap: LocationMap;
+  positions: PositionSkillMapping;
 };
