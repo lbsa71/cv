@@ -56,6 +56,13 @@ export type PositionSkillMapping = {
   };
 };
 
+export type SkillsConfig = {
+  skillsMap: Record<string, string>;
+  skillCategories: Record<string, string[]>;
+  locationMap: Record<string, string>;
+  positions: PositionSkillMapping;
+};
+
 export type PositionWithSkills = Position & {
   skills: string[];
 };
