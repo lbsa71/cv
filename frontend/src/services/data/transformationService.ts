@@ -127,7 +127,7 @@ function normalizeSkillName(skill: string): string {
   return normalizedSkill;
 }
 
-function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultSkillCategories): SkillCategory[] {
+function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultSkillCategories): SkillCategories {
   const normalizedSkills = new Set(
     skills.map(normalizeSkillName).filter((skill) => skill !== "")
   );
@@ -149,9 +149,9 @@ function categorizeSkills(skills: string[], skillCategories: SkillCategories = d
       }
 
       if (!placed) {
-        if (!acc.other) acc.other = [];
-        acc.other.push(skillName);
-        console.warn(`Uncategorized skill: "${skillName}"`);
+        // if (!acc.other) acc.other = [];
+        // acc.other.push(skillName);
+        // console.warn(`Uncategorized skill: "${skillName}"`);
       }
 
       return acc;
@@ -159,12 +159,9 @@ function categorizeSkills(skills: string[], skillCategories: SkillCategories = d
     {} as Record<string, string[]>
   );
 
-  return Object.entries(categorizedSkills)
-    .filter(([category]) => category !== 'other')
-    .map(([category, skills]) => ({
-      name: category,
-      skills: skills.sort(),
-    }));
+
+  console.log("skillsByCategory", categorizedSkills);
+  return categorizedSkills;
 }
 
 function filterRecentPositions(positions: any[]): any[] {
