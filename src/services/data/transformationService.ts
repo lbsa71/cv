@@ -11,6 +11,7 @@ import {
   TransformedCVData,
   SkillCategory,
 } from "../../models/types";
+import { Config, SkillCategories } from "../../types";
 
 const skillMap: Record<string, string> = {
   ".NET": "Microsoft.NET",
@@ -23,7 +24,7 @@ const skillMap: Record<string, string> = {
   GCP: "Google Cloud Platform (GCP)",
 };
 
-const SKILL_CATEGORIES = {
+const defaultSkillCategories : SkillCategories = {
   "Core Competencies": new Set([
     "Full-Stack Development",
     "Software Development",
@@ -139,7 +140,7 @@ function normalizeSkillName(skill: string): string {
   return normalizedSkill;
 }
 
-function categorizeSkills(skills: string[]): SkillCategory[] {
+function categorizeSkills(skills: string[], skillSet: ): SkillCategory[] {
   const normalizedSkills = new Set(
     skills.map(normalizeSkillName).filter((skill) => skill !== "")
   );
@@ -148,7 +149,7 @@ function categorizeSkills(skills: string[]): SkillCategory[] {
     (acc, skillName) => {
       let placed = false;
 
-      for (const [category, skillSet] of Object.entries(SKILL_CATEGORIES)) {
+      for (const [category, skillSet] of Object.entries(config.skillCategories)) {
         if (skillSet.has(skillName)) {
           if (!acc[category]) acc[category] = [];
           acc[category].push(skillName);

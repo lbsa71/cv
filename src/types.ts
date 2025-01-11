@@ -52,7 +52,7 @@ export type Language = {
 
 export type PositionSkillMapping = {
   [company: string]: {
-    [position: string]: string[];
+    [position: string]: Set<string>;
   };
 };
 
@@ -61,7 +61,7 @@ export type SkillsMap = {
 };
 
 export type SkillCategories = {
-  [category: string]: string[];
+  [category: string]: Set<string>;
 };
 
 export type LocationMap = {

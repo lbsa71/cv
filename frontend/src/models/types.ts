@@ -65,6 +65,12 @@ export type SkillCategory = {
   skills: string[];
 };
 
+export type SkillCategories = {
+
+    [category: string]: Set<string>;
+
+};
+
 export type RawData = {
     "Profile.csv"?: any[];
     "Positions.csv"?: any[];
@@ -82,7 +88,7 @@ export type TransformedCVData = {
   education: Education[];
   email: { "Email Address": string };
   languages: Language[];
-  skillCategories: SkillCategory[];
+  skillCategories: SkillCategories;
   image?: string; // Base64 encoded image data
 };
 
@@ -92,7 +98,7 @@ export type LocationMap = {
 
 export type Config = {
   skillsMap: PositionSkillMapping;
-  skillCategories: SkillCategory;
+  skillCategories: SkillCategories;
   locationMap: LocationMap;
   positions: PositionSkillMapping;
 };
