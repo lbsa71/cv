@@ -205,7 +205,7 @@ function mapSkillsToPositions(
   });
 }
 
-export async function loadAndTransformData(): Promise<TransformedCVData> {
+export async function loadAndTransformData(skillSet: SkillCategories): Promise<TransformedCVData> {
   const exportsDir = path.join(process.cwd(), "exports");
 
   const [
@@ -242,7 +242,7 @@ export async function loadAndTransformData(): Promise<TransformedCVData> {
   });
 
   // Categorize skills
-  const skillCategories = categorizeSkills(Array.from(allSkills));
+  const skillCategories = categorizeSkills(Array.from(allSkills), skillSet);
 
   return {
     positions: positionsWithSkills,

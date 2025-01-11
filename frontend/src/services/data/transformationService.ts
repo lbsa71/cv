@@ -1,4 +1,4 @@
-import type { RawData, TransformedCVData, Config, SkillCategories } from "../../models/types";
+import type { RawData, TransformedCVData, Config, SkillCategories, SkillCategory } from "../../models/types";
 
 const skillMap: Record<string, string> = {
   ".NET": "Microsoft.NET",
@@ -12,7 +12,7 @@ const skillMap: Record<string, string> = {
 };
 
 const defaultSkillCategories = {
-  "Core Competencies": new Set([
+  "Core Competencies": [
     "Full-Stack Development",
     "Software Development",
     "Web Development",
@@ -26,8 +26,8 @@ const defaultSkillCategories = {
     "Web Services",
     "Web Applications",
     "Backoffice IT Management",
-  ]),
-  "Programming Languages": new Set([
+  ],
+  "Programming Languages": [
     "JavaScript",
     "TypeScript",
     "Python",
@@ -41,8 +41,8 @@ const defaultSkillCategories = {
     "SQL",
     "Tailwind CSS",
     "Terraform Script",
-  ]),
-  Frameworks: new Set([
+  ],
+  Frameworks: [
     "React",
     "React Native",
     "Node.js",
@@ -53,8 +53,8 @@ const defaultSkillCategories = {
     "Symphony",
     "Firebase",
     "Docker",
-  ]),
-  "Cloud & Infrastructure": new Set([
+  ],
+  "Cloud & Infrastructure": [
     "Amazon Web Services (AWS)",
     "Google Cloud Platform (GCP)",
     "AWS Aurora",
@@ -69,14 +69,16 @@ const defaultSkillCategories = {
     "Distributed Systems",
     "RabbitMQ",
     "Serverless",
-  ]),
-  "Artificial Intelligence": new Set([
+  ],
+  "Artificial Intelligence": [
     "Large Language Models (LLM)",
     "Prompt Engineering",
     "Vector Databases",
     "Fine Tuning",
-  ]),
-  Databases: new Set([
+    "Model Hosting",
+    "RAG"
+  ],
+  Databases: [
     "Microsoft SQL Server",
     "GraphQL",
     "Firestore",
@@ -86,8 +88,8 @@ const defaultSkillCategories = {
     "Firestore",
     "MySQL",
     "Entity Framework",
-  ]),
-  Tools: new Set([
+  ],
+  Tools: [
     "Git",
     "Windows",
     "Linux",
@@ -97,8 +99,8 @@ const defaultSkillCategories = {
     "Google Workspace",
     "GitHub Actions",
     "GCP Cloud Build",
-  ]),
-  "Engineering Practices": new Set([
+  ],
+  "Engineering Practices": [
     "Software Architecture",
     "Software Design",
     "Software Engineering",
@@ -106,8 +108,8 @@ const defaultSkillCategories = {
     "Open Source",
     "Security",
     "Compliance",
-  ]),
-  Management: new Set([
+  ],
+  Management: [
     "Team Leadership",
     "Software Project Management",
     "Product Management",
@@ -115,7 +117,7 @@ const defaultSkillCategories = {
     "Agile Methodologies",
     "Scrum",
     "Extreme Programming",
-  ]),
+  ],
 };
 
 function normalizeSkillName(skill: string): string {
@@ -125,7 +127,7 @@ function normalizeSkillName(skill: string): string {
   return normalizedSkill;
 }
 
-function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultSkillCategories): { name: string; skills: string[] }[] {
+function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultSkillCategories): SkillCategory[] {
   const normalizedSkills = new Set(
     skills.map(normalizeSkillName).filter((skill) => skill !== "")
   );

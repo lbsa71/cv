@@ -67,7 +67,7 @@ export type SkillCategory = {
 
 export type SkillCategories = {
 
-    [category: string]: Set<string>;
+    [category: string]: string[];
 
 };
 

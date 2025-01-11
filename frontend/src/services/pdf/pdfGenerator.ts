@@ -2,7 +2,8 @@ import type {
   TransformedCVData,
   Language,
   Config,
-  LocationMap
+  LocationMap,
+  SkillCategories
 } from "../../models/types";
 
 import * as jspdf from 'jspdf';
@@ -50,36 +51,44 @@ export async function generateCV(
   const rightColumnWidth = pageWidth - leftColumnWidth - 30;
   const rightColumnStart = leftColumnWidth + 70;
 
+  // Initialize currentY for vertical positioning
+  let currentY = 50;
+
   // Left Column - Profile Picture
   if (data.image) {
-    doc.addImage(data.image, "JPEG", 50, 50, leftColumnWidth, leftColumnWidth);
+    doc.addImage(data.image, "JPEG", 50, currentY, leftColumnWidth, leftColumnWidth);
   }
 
   // Left Column - Contact Info
+  currentY = 220;
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
-  doc.text("Contact", 50, 220);
+  doc.text("Contact", 50, currentY);
 
   const linkedInRef = `www.linkedin.com/in/lbsa71`;
 
   // Linkedin
+  currentY = 240;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor("blue");
-  doc.textWithLink(linkedInRef, 50, 240, { url: "https://" + linkedInRef });
+  doc.textWithLink(linkedInRef, 50, currentY, { url: "https://" + linkedInRef });
   doc.setTextColor("black");
 
   // Email
-  doc.text(`Email: ${data.email["Email Address"]}`, 50, 260);
+  currentY = 260;
+  doc.text(`Email: ${data.email["Email Address"]}`, 50, currentY);
 
   // Phone
-  doc.text("Phone: +46-733 75 11 99", 50, 280);
+  currentY = 280;
+  doc.text("Phone: +46-733 75 11 99", 50, currentY);
 
   // Languages Section
   if (data.languages.length > 0) {
+    currentY = 300;
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("Languages", 50, 300);
+    doc.text("Languages", 50, currentY);
 
     data.languages.forEach((lang: Language, index: number) => {
       doc.setFont("Helvetica", "normal");
@@ -96,9 +105,10 @@ export async function generateCV(
     .filter(Boolean);
 
   if (websites.length > 0) {
+    currentY = 400;
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("Links", 50, 400);
+    doc.text("Links", 50, currentY);
 
     websites.forEach((site: string, index: number) => {
       doc.setFont("Helvetica", "normal");
@@ -111,32 +121,38 @@ export async function generateCV(
 
   // Right Column Content
   // Name and Title
+  currentY = 50;
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(28);
   doc.text(
     `${data.profile["First Name"]} ${data.profile["Last Name"]}`,
     rightColumnStart,
-    50
+    currentY
   );
+
+  currentY = 80;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(16);
   doc.setTextColor("rgb(80,80,80)");
-  doc.text(data.profile["Headline"], rightColumnStart, 80);
+  doc.text(data.profile["Headline"], rightColumnStart, currentY);
   doc.setTextColor("black");
 
   // Summary
+  currentY = 120;
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
-  doc.text("Professional Summary", rightColumnStart, 120);
+  doc.text("Professional Summary", rightColumnStart, currentY);
+  
+  currentY = 140;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
-  doc.text(data.profile["Summary"], rightColumnStart, 140, {
+  doc.text(data.profile["Summary"], rightColumnStart, currentY, {
     maxWidth: rightColumnWidth,
   });
 
   // Experience
   if (data.positions.length > 0) {
-    let currentY = 180;
+    currentY = 180;
     
     // Professional Experience header
     doc.setFont("Helvetica", "bold");
@@ -197,6 +213,85 @@ export async function generateCV(
         
         currentY += splitSkills.length * 10 + 30;
       }
+    }
+  }
+
+  // Education
+  if (data.education.length > 0) {
+    // Education header
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(16);
+    currentY = ensureEnoughSpace(doc, 30, currentY);
+    doc.text("Education", rightColumnStart, currentY);
+    currentY += 30;
+
+    // Process each education entry
+    for (const edu of data.education) {
+      const estimatedHeight = 100 + (edu["Notes"]?.length || 0) / 5;
+      currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
+
+      // School name
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(edu["School Name"], rightColumnStart, currentY);
+      currentY += 20;
+
+      // Degree name
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(12);
+      if (edu["Degree Name"]) {
+        doc.text(edu["Degree Name"], rightColumnStart, currentY);
+        currentY += 20;
+      }
+
+      // Dates
+      doc.setFontSize(10);
+      doc.text(
+        `${formatDate(edu["Start Date"])} - ${formatDate(edu["End Date"])}`,
+        rightColumnStart,
+        currentY
+      );
+      currentY += 20;
+
+      // Notes
+      if (edu["Notes"]) {
+        const splitNotes = doc.splitTextToSize(edu["Notes"], rightColumnWidth);
+        doc.text(splitNotes, rightColumnStart, currentY);
+        currentY += splitNotes.length * 12 + 20;
+      }
+    }
+  }
+
+  // Skills
+  if (data.skillCategories && Object.keys(data.skillCategories).length > 0) {
+    // Technical Skills header
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(16);
+    currentY = ensureEnoughSpace(doc, 30, currentY);
+    doc.text("Technical Skills", rightColumnStart, currentY);
+    currentY += 30;
+
+    console.log(data.skillCategories);
+
+    // Process each skill category
+    for (const [categoryName, skillSet] of Object.entries(data.skillCategories)) {
+      const skills = Array.from(skillSet);
+      const estimatedHeight = 40 + skills.length * 10;
+      currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
+
+      // Category name
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(categoryName, rightColumnStart, currentY);
+      currentY += 15;
+
+      // Skills
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(10);
+      const skillsText = skills.join(" • ");
+      const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth);
+      doc.text(splitSkills, rightColumnStart, currentY);
+      currentY += splitSkills.length * 12 + 20;
     }
   }
 
