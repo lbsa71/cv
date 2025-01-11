@@ -216,6 +216,43 @@ export async function generateCV(
     }
   }
 
+  // Projects
+  if (data.projects.length > 0) {
+    // Projects header
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(16);
+    currentY = ensureEnoughSpace(doc, 30, currentY);
+    doc.text("Notable Projects", rightColumnStart, currentY);
+    currentY += 30;
+
+    // Process each project
+    for (const project of data.projects) {
+      const estimatedHeight = 80 + project["Description"].length / 5;
+      currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
+
+      // Title and dates
+      doc.setFont("Helvetica", "bold");
+      doc.setFontSize(13);
+      const titleWidth = doc.getTextWidth(project["Title"]);
+      doc.text(project["Title"], rightColumnStart, currentY);
+      
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(11);
+      const dateText = `(${formatDate(project["Started On"])} - ${formatDate(project["Finished On"])})`;
+      doc.text(dateText, rightColumnStart + titleWidth + 10, currentY);
+      
+      currentY += 20;
+
+      // Description
+      doc.setFont("Helvetica", "normal");
+      doc.setFontSize(10);
+      const splitDescription = doc.splitTextToSize(project["Description"], rightColumnWidth);
+      doc.text(splitDescription, rightColumnStart, currentY);
+      
+      currentY += splitDescription.length * 12 + 30;
+    }
+  }
+
   // Education
   if (data.education.length > 0) {
     // Education header
