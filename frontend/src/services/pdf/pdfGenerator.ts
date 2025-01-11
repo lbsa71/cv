@@ -48,7 +48,7 @@ export async function generateCV(
   // Define column widths and spacing
   const pageWidth = doc.internal.pageSize.getWidth();
   const leftColumnWidth = 160;
-  const rightColumnWidth = pageWidth - leftColumnWidth - 30;
+  const rightColumnWidth = pageWidth - leftColumnWidth - 90; // Increased margin
   const rightColumnStart = leftColumnWidth + 70;
 
   // Initialize currentY for vertical positioning
@@ -57,18 +57,20 @@ export async function generateCV(
   // Left Column - Profile Picture
   if (data.image) {
     doc.addImage(data.image, "JPEG", 50, currentY, leftColumnWidth, leftColumnWidth);
-    currentY += leftColumnWidth + 30;
+    currentY += leftColumnWidth + 50; // Increased spacing after image
+  } else {
+    currentY = 50; // Reset if no image
   }
 
   // Left Column - Contact Info
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
   doc.text("Contact", 50, currentY);
+  currentY += 20;
 
   const linkedInRef = `www.linkedin.com/in/lbsa71`;
 
   // Linkedin
-  currentY = 240;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor("blue");
@@ -76,24 +78,25 @@ export async function generateCV(
   doc.setTextColor("black");
 
   // Email
-  currentY = 260;
+  currentY += 20;
   doc.text(`Email: ${data.email["Email Address"]}`, 50, currentY);
 
   // Phone
-  currentY = 280;
+  currentY += 20;
   doc.text("Phone: +46-733 75 11 99", 50, currentY);
 
   // Languages Section
   if (data.languages.length > 0) {
-    currentY = 300;
+    currentY += 40;
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
     doc.text("Languages", 50, currentY);
 
     data.languages.forEach((lang: Language, index: number) => {
+      currentY += 20;
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
-      doc.text(`${lang.Name}: ${lang.Proficiency}`, 50, 320 + index * 20);
+      doc.text(`${lang.Name}: ${lang.Proficiency}`, 50, currentY);
     });
   }
 
@@ -105,16 +108,17 @@ export async function generateCV(
     .filter(Boolean);
 
   if (websites.length > 0) {
-    currentY = 400;
+    currentY += 40;
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
     doc.text("Links", 50, currentY);
 
-    websites.forEach((site: string, index: number) => {
+    websites.forEach((site: string) => {
+      currentY += 20;
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor("blue");
-      doc.textWithLink(site, 50, 420 + index * 20, { url: site });
+      doc.textWithLink(site, 50, currentY, { url: site });
       doc.setTextColor("black");
     });
   }
@@ -134,26 +138,25 @@ export async function generateCV(
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(16);
   doc.setTextColor("rgb(80,80,80)");
-  doc.text(data.profile["Headline"], rightColumnStart, currentY);
+  const splitHeadline = doc.splitTextToSize(data.profile["Headline"], rightColumnWidth);
+  doc.text(splitHeadline, rightColumnStart, currentY);
   doc.setTextColor("black");
+  currentY += splitHeadline.length * 20 + 20;
 
   // Summary
-  currentY = 120;
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
   doc.text("Professional Summary", rightColumnStart, currentY);
   
-  currentY = 140;
+  currentY += 20;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
-  doc.text(data.profile["Summary"], rightColumnStart, currentY, {
-    maxWidth: rightColumnWidth,
-  });
+  const splitSummary = doc.splitTextToSize(data.profile["Summary"], rightColumnWidth);
+  doc.text(splitSummary, rightColumnStart, currentY);
+  currentY += splitSummary.length * 12 + 30;
 
   // Experience
   if (data.positions.length > 0) {
-    currentY = 180;
-    
     // Professional Experience header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
@@ -307,8 +310,6 @@ export async function generateCV(
     currentY = ensureEnoughSpace(doc, 30, currentY);
     doc.text("Technical Skills", rightColumnStart, currentY);
     currentY += 30;
-
-    console.log(data.skillCategories);
 
     // Process each skill category
     for (const [categoryName, skillSet] of Object.entries(data.skillCategories)) {
