@@ -57,10 +57,10 @@ export async function generateCV(
   // Left Column - Profile Picture
   if (data.image) {
     doc.addImage(data.image, "JPEG", 50, currentY, leftColumnWidth, leftColumnWidth);
+    currentY += leftColumnWidth + 30;
   }
 
   // Left Column - Contact Info
-  currentY = 220;
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
   doc.text("Contact", 50, currentY);
@@ -331,6 +331,16 @@ export async function generateCV(
       currentY += splitSkills.length * 12 + 20;
     }
   }
+
+  // Add "Generated with" section at bottom of left column
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("This CV generated with", 50, doc.internal.pageSize.getHeight() - 80);
+  
+  const backRef = "https://github.com/lbsa71/cv";
+  doc.setTextColor("blue");
+  doc.textWithLink(backRef, 50, doc.internal.pageSize.getHeight() - 60, { url: backRef });
+  doc.setTextColor("black");
 
   // Trigger automatic download
   doc.save("cv.pdf");

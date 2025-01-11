@@ -75,6 +75,10 @@
         <input type="file" accept=".zip" id="zipInput" />
       </div>
       <div>
+        <label for="imageInput"><strong>Upload Profile Picture (Optional):</strong></label>
+        <input type="file" accept="image/jpeg,image/png" id="imageInput" />
+      </div>
+      <div>
         <label for="jsonInput"><strong>Upload Position Skills Map (JSON) (Optional):</strong></label>
         <input type="file" accept=".json" id="jsonInput" />
       </div>
@@ -108,8 +112,10 @@
       async function handleFileUploadAndProcess() {
         console.log('Handling file upload');
         const zipInput = document.getElementById('zipInput') as HTMLInputElement;
+        const imageInput = document.getElementById('imageInput') as HTMLInputElement;
         const jsonInput = document.getElementById('jsonInput') as HTMLInputElement;
         const zipFile = zipInput.files[0];
+        const imageFile = imageInput.files[0];
         const jsonFile = jsonInput.files[0];
 
         if (!zipFile) {
@@ -130,9 +136,24 @@
               const baseName = fileName.split('/').pop(); // Remove any directory path
               rawData[baseName] = parseCSV(fileData);
             } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
-              const imageData = await zipContent.files[fileName].async('base64');
-              rawData.image = `data:image/jpeg;base64,${imageData}`;
+              // Skip image files in ZIP if we have a separate image upload
+              if (!imageFile) {
+                const imageData = await zipContent.files[fileName].async('base64');
+                rawData.image = `data:image/jpeg;base64,${imageData}`;
+              }
             }
+          }
+
+          // Process image file if provided
+          if (imageFile) {
+            const reader = new FileReader();
+            await new Promise((resolve) => {
+              reader.onload = () => {
+                rawData.image = reader.result as string;
+                resolve(null);
+              };
+              reader.readAsDataURL(imageFile);
+            });
           }
 
           // Process JSON file if provided
