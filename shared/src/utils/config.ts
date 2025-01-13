@@ -393,7 +393,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
         // Node.js environment
         const fs = await import('fs/promises');
         const content = await fs.readFile(configPath, 'utf-8');
-        return JSON.parse(content);
+        return { ...defaultConfig, ...JSON.parse(content) };
       }
     } catch (error) {
       console.warn(`Failed to load config from ${configPath}, using default config:`, error);

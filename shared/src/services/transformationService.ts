@@ -18,8 +18,6 @@ const skillMap: Record<string, string> = {
   GCP: "Google Cloud Platform (GCP)",
 };
 
-import { defaultConfig } from '../utils/config';
-
 function normalizeSkillName(skill: string): string {
   const normalizedSkill = skillMap[skill];
   if (typeof normalizedSkill === "undefined") return skill;
@@ -27,7 +25,7 @@ function normalizeSkillName(skill: string): string {
   return normalizedSkill;
 }
 
-function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultConfig.skillCategories): SkillCategories {
+function categorizeSkills(skills: string[], skillCategories: SkillCategories): SkillCategories {
   const normalizedSkills = new Set(
     skills.map(normalizeSkillName).filter((skill) => skill !== "")
   );

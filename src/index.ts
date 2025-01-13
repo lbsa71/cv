@@ -2,8 +2,6 @@ import path from "path";
 import fs from "fs";
 import { promisify } from "util";
 import { parse } from "json5";
-import unzipper from "unzipper";
-import sharp from "sharp";
 import { loadAndTransformData } from "./services/data/transformationService";
 import { Config } from "./types";
 import { generateCV } from "./services/pdf/pdfGenerator";
