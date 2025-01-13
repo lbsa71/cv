@@ -15,14 +15,14 @@ const defaultLocationMap: Record<string, string> = {
 };
 
 function trimLocation(location: string, locationMap: LocationMap = defaultLocationMap): string {
-  return locationMap[location] || location;
+  return location in locationMap ? locationMap[location] : location;
 }
 
-function formatDate(date: string): string {
-  return date || "Present";
+function formatDate(date: string | undefined): string {
+  return date && date !== '' ? date : "Present";
 }
 
-function ensureEnoughSpace(doc: any, requiredHeight: number, currentY: number) {
+function ensureEnoughSpace(doc: jspdf.jsPDF, requiredHeight: number, currentY: number): number {
   const pageHeight = doc.internal.pageSize.getHeight() - 50; // 50pt margin
 
   if (currentY + requiredHeight > pageHeight) {
@@ -32,10 +32,8 @@ function ensureEnoughSpace(doc: any, requiredHeight: number, currentY: number) {
   return currentY;
 }
 
-export async function generateCV(
-  data: TransformedCVData,
-  config: Config
-): Promise<void> {
+export async function generateCV(data: TransformedCVData, config: Config): Promise<void> {
+  // We don't actually use await in this function, but keeping it async for future extensibility
   const doc = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -99,11 +97,11 @@ export async function generateCV(
   }
 
   // Websites
-  const websites = data.profile["Websites"]
-    .replace(/[\[\]]/g, "")
+  const websites = (data.profile["Websites"] ?? '')
+    .replace(/[[\]]/g, "")
     .split(",")
     .map((site: string) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
-    .filter(Boolean);
+    .filter((site): site is string => Boolean(site));
 
   if (websites.length > 0) {
     currentY += 40;
@@ -292,7 +290,7 @@ export async function generateCV(
       currentY += 20;
 
       // Notes
-      if (edu["Notes"]) {
+      if (typeof edu["Notes"] === 'string' && edu["Notes"].length > 0) {
         const splitNotes = doc.splitTextToSize(edu["Notes"], rightColumnWidth);
         doc.text(splitNotes, rightColumnStart, currentY);
         currentY += splitNotes.length * 12 + 20;
@@ -301,7 +299,7 @@ export async function generateCV(
   }
 
   // Skills
-  if (data.skillCategories && Object.keys(data.skillCategories).length > 0) {
+  if (Object.keys(data.skillCategories ?? {}).length > 0) {
     // Technical Skills header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
