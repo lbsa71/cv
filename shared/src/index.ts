@@ -10,6 +10,5 @@ export { parseFiles } from './services/parseFiles';
 
 // Export config utilities
 export {
-  defaultConfig,
-  loadConfig
+  defaultConfig
 } from './utils/config';

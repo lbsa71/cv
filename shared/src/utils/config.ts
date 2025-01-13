@@ -382,23 +382,3 @@ export const defaultConfig: Config = {
   }
 };
 
-export async function loadConfig(configPath?: string): Promise<Config> {
-  if (configPath) {
-    try {
-      if (typeof window !== 'undefined') {
-        // Browser environment
-        const response = await fetch(configPath);
-        return await response.json();
-      } else {
-        // Node.js environment
-        const fs = await import('fs/promises');
-        const content = await fs.readFile(configPath, 'utf-8');
-        return { ...defaultConfig, ...JSON.parse(content) };
-      }
-    } catch (error) {
-      console.warn(`Failed to load config from ${configPath}, using default config:`, error);
-      return defaultConfig;
-    }
-  }
-  return defaultConfig;
-}
