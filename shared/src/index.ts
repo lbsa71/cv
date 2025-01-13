@@ -5,10 +5,7 @@ export * from './models/types';
 export { parseCSV, validateCSVData } from './utils/csvParser';
 
 // Export services
-export { 
-  transformData,
-  defaultSkillCategories
-} from './services/transformationService';
+export { transformData } from './services/transformationService';
 
 // Export config utilities
 export {

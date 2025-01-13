@@ -18,114 +18,7 @@ const skillMap: Record<string, string> = {
   GCP: "Google Cloud Platform (GCP)",
 };
 
-export const defaultSkillCategories: SkillCategories = {
-  "Core Competencies": [
-    "Full-Stack Development",
-    "Software Development",
-    "Web Development",
-    "CI/CD",
-    "Mobile Applications",
-    "Programming",
-    "Test Automation",
-    "Mechatronics",
-    "Interactive Voice Response (IVR)",
-    "Natural Language Processing (NLP)",
-    "Web Services",
-    "Web Applications",
-    "Backoffice IT Management",
-  ],
-  "Programming Languages": [
-    "JavaScript",
-    "TypeScript",
-    "Python",
-    "C",
-    "C++",
-    "C#",
-    "Java",
-    "PHP",
-    "Assembly Language",
-    "CSS",
-    "SQL",
-    "Tailwind CSS",
-    "Terraform Script",
-  ],
-  Frameworks: [
-    "React",
-    "React Native",
-    "Node.js",
-    "Next.js",
-    "AngularJS",
-    "Microsoft.NET",
-    "Mono",
-    "Symphony",
-    "Firebase",
-    "Docker",
-  ],
-  "Cloud & Infrastructure": [
-    "Amazon Web Services (AWS)",
-    "Google Cloud Platform (GCP)",
-    "AWS Aurora",
-    "AWS CloudFormation",
-    "Infrastructure as code (IaC)",
-    "Terraform Cloud",
-    "GitHub Actions",
-    "GCP Cloud Build",
-    "DevOps",
-    "Configuration Management",
-    "Puppet",
-    "Distributed Systems",
-    "RabbitMQ",
-    "Serverless",
-  ],
-  "Artificial Intelligence": [
-    "Large Language Models (LLM)",
-    "Prompt Engineering",
-    "Vector Databases",
-    "Fine Tuning",
-    "Model Hosting",
-    "RAG"
-  ],
-  Databases: [
-    "Microsoft SQL Server",
-    "GraphQL",
-    "Firestore",
-    "MongoDB",
-    "AWS Aurora",
-    "AWS DocumentDB",
-    "Firestore",
-    "MySQL",
-    "Entity Framework",
-  ],
-  Tools: [
-    "Git",
-    "Windows",
-    "Linux",
-    "MacOS",
-    "Expo",
-    "App Center",
-    "Google Workspace",
-    "GitHub Actions",
-    "GCP Cloud Build",
-  ],
-  "Engineering Practices": [
-    "Software Architecture",
-    "Software Design",
-    "Software Engineering",
-    "Integration",
-    "Open Source",
-    "Security",
-    "Compliance",
-  ],
-  Management: [
-    "Team Leadership",
-    "Software Project Management",
-    "Product Management",
-    "Business Strategy",
-    "Agile Methodologies",
-    "Scrum",
-    "Extreme Programming",
-  ],
-};
+import { defaultConfig } from '../utils/config';
 
 function normalizeSkillName(skill: string): string {
   const normalizedSkill = skillMap[skill];
@@ -134,7 +27,7 @@ function normalizeSkillName(skill: string): string {
   return normalizedSkill;
 }
 
-function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultSkillCategories): SkillCategories {
+function categorizeSkills(skills: string[], skillCategories: SkillCategories = defaultConfig.skillCategories): SkillCategories {
   const normalizedSkills = new Set(
     skills.map(normalizeSkillName).filter((skill) => skill !== "")
   );
