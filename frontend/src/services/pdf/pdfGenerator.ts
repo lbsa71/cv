@@ -7,12 +7,6 @@ import type {
 
 import * as jspdf from 'jspdf';
 
-type JsPDFWithPlugin = jspdf.jsPDF & {
-  splitTextToSize: (text: string, maxWidth: number) => string[];
-  getTextWidth: (text: string) => number;
-  textWithLink: (text: string, x: number, y: number, options: { url: string }) => void;
-};
-
 const defaultLocationMap: Record<string, string> = {
   "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
   "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
@@ -317,7 +311,7 @@ export async function generateCV(
 
     // Process each skill category
     for (const [categoryName, skillSet] of Object.entries(data.skillCategories)) {
-      const skills = Array.from(skillSet as Set<string>);
+      const skills = Array.from(skillSet);
       const estimatedHeight = 40 + skills.length * 10;
       currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
 
