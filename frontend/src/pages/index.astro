@@ -98,6 +98,8 @@
     <script>
       import { generateCV } from '../services/pdf/pdfGenerator';
       import { transformData } from '../services/data/transformationService';
+      import { parseCSV } from '@cv/shared/src/utils/csvParser';
+      import { defaultConfig } from '@cv/shared';
       import JSZip from 'jszip';
       import type { RawData, Config } from '@cv/shared';
 
@@ -114,9 +116,13 @@
         const zipInput = document.getElementById('zipInput') as HTMLInputElement;
         const imageInput = document.getElementById('imageInput') as HTMLInputElement;
         const jsonInput = document.getElementById('jsonInput') as HTMLInputElement;
+        if (!zipInput.files) {
+          console.error('ZIP input element not found');
+          return;
+        }
         const zipFile = zipInput.files[0];
-        const imageFile = imageInput.files[0];
-        const jsonFile = jsonInput.files[0];
+        const imageFile = imageInput.files?.length ? imageInput.files[0] : undefined;
+        const jsonFile = jsonInput.files?.length ? jsonInput.files[0] : undefined;
 
         if (!zipFile) {
           console.error('No ZIP file selected');
@@ -129,17 +135,32 @@
           const zipContent = await zip.loadAsync(zipFile);
           const rawData: RawData = {};
 
-          for (const fileName of Object.keys(zipContent.files)) {
-            console.log('Processing file:', fileName);
-            if (fileName.endsWith('.csv')) {
-              const fileData = await zipContent.files[fileName].async('text');
-              const baseName = fileName.split('/').pop(); // Remove any directory path
-              rawData[baseName] = parseCSV(fileData);
-            } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
-              // Skip image files in ZIP if we have a separate image upload
-              if (!imageFile) {
-                const imageData = await zipContent.files[fileName].async('base64');
-                rawData.image = `data:image/jpeg;base64,${imageData}`;
+          const files = zipContent.files;
+          if (files) {
+            for (const fileName of Object.keys(files)) {
+              console.log('Processing file:', fileName);
+              const file = files[fileName];
+              if (!file) continue;
+
+              if (fileName.endsWith('.csv')) {
+                const fileData = await file.async('text');
+                const baseName = fileName.split('/').pop();
+                if (baseName && (
+                  baseName === 'Profile.csv' ||
+                  baseName === 'Positions.csv' ||
+                  baseName === 'Projects.csv' ||
+                  baseName === 'Education.csv' ||
+                  baseName === 'Email Addresses.csv' ||
+                  baseName === 'Languages.csv'
+                )) {
+                  rawData[baseName] = parseCSV(fileData);
+                }
+              } else if (fileName.endsWith('.jpg') || fileName.endsWith('.png')) {
+                // Skip image files in ZIP if we have a separate image upload
+                if (!imageFile) {
+                  const imageData = await file.async('base64');
+                  rawData.image = `data:image/jpeg;base64,${imageData}`;
+                }
               }
             }
           }
@@ -157,11 +178,16 @@
           }
 
           // Process JSON file if provided
-          let config: Config | undefined;
+          let config: Config = defaultConfig;
 
           if (jsonFile) {
             const jsonContent = await jsonFile.text();
-            config = JSON.parse(jsonContent);
+            const customConfig = JSON.parse(jsonContent) as Partial<Config>;
+            // Merge custom config with default config
+            config = {
+              ...defaultConfig,
+              ...customConfig
+            };
           }
 
           console.log('Raw data processed:', rawData);

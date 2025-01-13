@@ -2,12 +2,16 @@ import type {
   TransformedCVData,
   Language,
   Config,
-  LocationMap,
-  SkillCategories
-} from "../../models/types";
+  LocationMap
+} from "@cv/shared";
 
 import * as jspdf from 'jspdf';
-// Declare proper types for jsPDF UMD module
+
+type JsPDFWithPlugin = jspdf.jsPDF & {
+  splitTextToSize: (text: string, maxWidth: number) => string[];
+  getTextWidth: (text: string) => number;
+  textWithLink: (text: string, x: number, y: number, options: { url: string }) => void;
+};
 
 const defaultLocationMap: Record<string, string> = {
   "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
@@ -92,7 +96,7 @@ export async function generateCV(
     doc.setFontSize(14);
     doc.text("Languages", 50, currentY);
 
-    data.languages.forEach((lang: Language, index: number) => {
+    data.languages.forEach((lang: Language) => {
       currentY += 20;
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
@@ -104,7 +108,7 @@ export async function generateCV(
   const websites = data.profile["Websites"]
     .replace(/[\[\]]/g, "")
     .split(",")
-    .map((site) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
+    .map((site: string) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
     .filter(Boolean);
 
   if (websites.length > 0) {
@@ -313,7 +317,7 @@ export async function generateCV(
 
     // Process each skill category
     for (const [categoryName, skillSet] of Object.entries(data.skillCategories)) {
-      const skills = Array.from(skillSet);
+      const skills = Array.from(skillSet as Set<string>);
       const estimatedHeight = 40 + skills.length * 10;
       currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
 
