@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@cv/shared": "file:../shared",
     "@astrojs/ts-plugin": "^1.10.4",
     "astro": "^5.0.5",
     "jspdf": "^2.5.2",

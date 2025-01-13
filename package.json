@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cv/shared": "file:./shared",
     "@types/node": "^20.10.4",
     "@types/pdfkit": "^0.13.3",
     "csv-parse": "^5.5.2",
