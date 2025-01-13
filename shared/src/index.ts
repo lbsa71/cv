@@ -9,3 +9,9 @@ export {
   transformData,
   defaultSkillCategories
 } from './services/transformationService';
+
+// Export config utilities
+export {
+  defaultConfig,
+  loadConfig
+} from './utils/config';

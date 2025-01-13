@@ -130,3 +130,4 @@ out
 .pnp.*
 .DS_Store
 exports
+dist

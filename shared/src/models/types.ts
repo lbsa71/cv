@@ -52,6 +52,10 @@ export type Language = {
 };
 
 // Configuration Types
+export type SkillNameMapping = {
+  [skill: string]: string;
+};
+
 export type PositionSkillMapping = {
   [company: string]: {
     [position: string]: string[];
@@ -63,7 +67,7 @@ export type LocationMap = {
 };
 
 export type Config = {
-  skillsMap: PositionSkillMapping;
+  skillsMap: SkillNameMapping;
   skillCategories: SkillCategories;
   locationMap: LocationMap;
   positions: PositionSkillMapping;
