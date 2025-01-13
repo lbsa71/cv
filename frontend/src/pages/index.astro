@@ -115,11 +115,11 @@
 
     <script>
       import { generateCV } from "../services/pdf/pdfGenerator";
+      import { parseFiles } from "@cv/shared/src/services/parseFiles";
       import { transformData } from "../services/data/transformationService";
-      import { parseCSV } from "@cv/shared/src/utils/csvParser";
       import { defaultConfig } from "@cv/shared";
       import JSZip from "jszip";
-      import type { RawData, Config } from "@cv/shared";
+      import type { Config } from "@cv/shared";
 
       // Declare window interface
       declare global {
@@ -161,53 +161,9 @@
           // Process ZIP file
           const zip = new JSZip();
           const zipContent = await zip.loadAsync(zipFile);
-          const rawData: RawData = {};
-
           const files = zipContent.files;
-          if (files) {
-            for (const fileName of Object.keys(files)) {
-              console.log("Processing file:", fileName);
-              const file = files[fileName];
-              if (!file) continue;
 
-              if (fileName.endsWith(".csv")) {
-                const fileData = await file.async("text");
-                const baseName = fileName.split("/").pop();
-                if (
-                  baseName &&
-                  (baseName === "Profile.csv" ||
-                    baseName === "Positions.csv" ||
-                    baseName === "Projects.csv" ||
-                    baseName === "Education.csv" ||
-                    baseName === "Email Addresses.csv" ||
-                    baseName === "Languages.csv")
-                ) {
-                  rawData[baseName] = parseCSV(fileData);
-                }
-              } else if (
-                fileName.endsWith(".jpg") ||
-                fileName.endsWith(".png")
-              ) {
-                // Skip image files in ZIP if we have a separate image upload
-                if (!imageFile) {
-                  const imageData = await file.async("base64");
-                  rawData.image = `data:image/jpeg;base64,${imageData}`;
-                }
-              }
-            }
-          }
-
-          // Process image file if provided
-          if (imageFile) {
-            const reader = new FileReader();
-            await new Promise((resolve) => {
-              reader.onload = () => {
-                rawData.image = reader.result as string;
-                resolve(null);
-              };
-              reader.readAsDataURL(imageFile);
-            });
-          }
+          const rawData = await parseFiles(files, imageFile);
 
           // Process JSON file if provided
           let config: Config;
@@ -220,6 +176,8 @@
               ...defaultConfig,
               ...customConfig,
             };
+          } else {
+            config = defaultConfig;
           }
 
           console.log("Raw data processed:", rawData);
