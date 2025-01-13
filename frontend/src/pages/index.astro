@@ -97,9 +97,9 @@
 
     <script>
       import { generateCV } from '../services/pdf/pdfGenerator';
-      import { parseCSV, transformData } from '../services/data/transformationService';
+      import { transformData } from '../services/data/transformationService';
       import JSZip from 'jszip';
-      import type { RawData, PositionSkillMapping, Config } from '../models/types';
+      import type { RawData, Config } from '@cv/shared';
 
       // Declare window interface
       declare global {
