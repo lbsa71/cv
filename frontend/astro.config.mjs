@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  base: 'linkedin-cv-export/',
+  base: 'linkedin-cv-export',
   vite: {
     resolve: {
       alias: {
