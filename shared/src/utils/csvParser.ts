@@ -1,5 +1,7 @@
 export function parseCSV<T extends object = any>(text: string, filename?: string): T[] {
   try {
+    console.log('text', text);
+
     const rows = text.split(/\r?\n/);
     if (rows.length < 2) {
       throw new Error(`CSV file ${filename || ''} is empty or has no data rows`);
@@ -55,6 +57,8 @@ export function parseCSV<T extends object = any>(text: string, filename?: string
         return obj;
       }, {} as T);
     };
+
+    console.log('rows', rows);
 
     return rows
       .slice(1)

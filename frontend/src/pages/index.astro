@@ -115,11 +115,14 @@
 
     <script>
       import { generateCV } from "../services/pdf/pdfGenerator";
-      import { parseFiles } from "@cv/shared/src/services/parseFiles";
-      import { transformData } from "../services/data/transformationService";
-      import { defaultConfig } from "@cv/shared";
+      import {
+        parseFiles,
+        transformData,
+        defaultConfig,
+        type Config,
+      } from "@cv/shared";
+
       import JSZip from "jszip";
-      import type { Config } from "@cv/shared";
 
       // Declare window interface
       declare global {
@@ -161,8 +164,23 @@
           // Process ZIP file
           const zip = new JSZip();
           const zipContent = await zip.loadAsync(zipFile);
-          const files = zipContent.files;
+          const zippedFiles = zipContent.files;
 
+          if (!zippedFiles || Object.keys(zippedFiles).length === 0) {
+            console.error("No files found in ZIP archive");
+            return;
+          }
+
+          // Iterate over files and process them asynchronously
+          const files: Record<string, string> = {};
+
+          for (const [key, file] of Object.entries(zippedFiles)) {
+            if (!file.dir) {
+              files[key] = await file.async("text");
+            }
+          }
+
+          // Pass processed files to your parsing function
           const rawData = await parseFiles(files, imageFile);
 
           // Process JSON file if provided

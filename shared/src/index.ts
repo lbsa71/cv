@@ -6,6 +6,7 @@ export { parseCSV, validateCSVData } from './utils/csvParser';
 
 // Export services
 export { transformData } from './services/transformationService';
+export { parseFiles } from './services/parseFiles';
 
 // Export config utilities
 export {

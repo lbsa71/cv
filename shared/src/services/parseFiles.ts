@@ -9,7 +9,7 @@ export function parseFiles(files: Record<string, any>, imageFile?: File) {
         if (!file) continue;
 
         if (fileName.endsWith(".csv")) {
-            const fileData = file.async("text");
+            const fileData = file;
             const baseName = fileName.split("/").pop();
             if (
                 baseName &&
