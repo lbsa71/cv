@@ -5,7 +5,8 @@ import { generateCV } from "./services/pdf/pdfGenerator";
 async function main() {
   try {
     console.log("Loading and transforming data...");
-    const data = await loadAndTransformData();
+    cons config = // TBD: Load config from json file provided via arguments
+    const data = await loadAndTransformData(config);
 
     console.log("Generating PDF...");
     const outputPath = path.join(process.cwd(), "output", "cv.pdf");

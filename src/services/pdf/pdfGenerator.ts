@@ -1,7 +1,7 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import { TransformedCVData } from "../../models/types";
+import { TransformedCVData } from "@cv/shared";
 
 function trimLocation(location: string): string {
   const locationMap: Record<string, string> = {

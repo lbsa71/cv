@@ -15,11 +15,12 @@ const defaultLocationMap: Record<string, string> = {
 };
 
 function trimLocation(location: string, locationMap: LocationMap = defaultLocationMap): string {
-  return location in locationMap ? locationMap[location] : location;
+  return location in locationMap ? locationMap[location] ?? location : location;
 }
 
-function formatDate(date: string | undefined): string {
-  return date && date !== '' ? date : "Present";
+function formatDate(date: string | null | undefined): string {
+  if (date === null || date === undefined || date === '') return "Present";
+  return date;
 }
 
 function ensureEnoughSpace(doc: jspdf.jsPDF, requiredHeight: number, currentY: number): number {
@@ -32,8 +33,7 @@ function ensureEnoughSpace(doc: jspdf.jsPDF, requiredHeight: number, currentY: n
   return currentY;
 }
 
-export async function generateCV(data: TransformedCVData, config: Config): Promise<void> {
-  // We don't actually use await in this function, but keeping it async for future extensibility
+export function generateCV(data: TransformedCVData, config: Config): void {
   const doc = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -51,7 +51,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   let currentY = 50;
 
   // Left Column - Profile Picture
-  if (data.image) {
+  if (typeof data.image === 'string' && data.image.trim() !== '') {
     doc.addImage(data.image, "JPEG", 50, currentY, leftColumnWidth, leftColumnWidth);
     currentY += leftColumnWidth + 50; // Increased spacing after image
   } else {
@@ -82,7 +82,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   doc.text("Phone: +46-733 75 11 99", 50, currentY);
 
   // Languages Section
-  if (data.languages.length > 0) {
+  if (Array.isArray(data.languages) && data.languages.length > 0) {
     currentY += 40;
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(14);
@@ -97,11 +97,11 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   }
 
   // Websites
-  const websites = (data.profile["Websites"] ?? '')
+  const websites = (data.profile["Websites"] || '')
     .replace(/[[\]]/g, "")
     .split(",")
     .map((site: string) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
-    .filter((site): site is string => Boolean(site));
+    .filter((site: string) => site.trim().length > 0);
 
   if (websites.length > 0) {
     currentY += 40;
@@ -134,7 +134,8 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(16);
   doc.setTextColor("rgb(80,80,80)");
-  const splitHeadline = doc.splitTextToSize(data.profile["Headline"], rightColumnWidth);
+  const headline = data.profile["Headline"] || '';
+  const splitHeadline = doc.splitTextToSize(headline, rightColumnWidth) as string;
   doc.text(splitHeadline, rightColumnStart, currentY);
   doc.setTextColor("black");
   currentY += splitHeadline.length * 20 + 20;
@@ -143,16 +144,17 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(14);
   doc.text("Professional Summary", rightColumnStart, currentY);
-  
+
   currentY += 20;
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
-  const splitSummary = doc.splitTextToSize(data.profile["Summary"], rightColumnWidth);
+  const summary = data.profile["Summary"] || '';
+  const splitSummary = doc.splitTextToSize(summary, rightColumnWidth) as string;
   doc.text(splitSummary, rightColumnStart, currentY);
   currentY += splitSummary.length * 12 + 30;
 
   // Experience
-  if (data.positions.length > 0) {
+  if (Array.isArray(data.positions) && data.positions.length > 0) {
     // Professional Experience header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
@@ -161,7 +163,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
 
     // Process each position
     for (const position of data.positions) {
-      const estimatedHeight = 120 + position["Description"].length / 5;
+      const estimatedHeight = 120 + (position["Description"] ? position["Description"].length : 0) / 5;
       currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
 
       // Title and dates
@@ -169,12 +171,12 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
       doc.setFontSize(13);
       const titleWidth = doc.getTextWidth(position["Title"]);
       doc.text(position["Title"], rightColumnStart, currentY);
-      
+
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(11);
       const dateText = `(${formatDate(position["Started On"])} - ${formatDate(position["Finished On"])})`;
       doc.text(dateText, rightColumnStart + titleWidth + 10, currentY);
-      
+
       currentY += 20;
 
       // Company and location
@@ -187,36 +189,37 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
         currentY
       );
       doc.setTextColor("black");
-      
+
       currentY += 20;
 
       // Description
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
-      const splitDescription = doc.splitTextToSize(position["Description"], rightColumnWidth);
+      const description = position["Description"] || '';
+      const splitDescription = doc.splitTextToSize(description, rightColumnWidth) as string;
       doc.text(splitDescription, rightColumnStart, currentY);
-      
+
       currentY += splitDescription.length * 12 + 20;
 
       // Add normalized skills from the position
-      if (position.skills && position.skills.length > 0) {
+      if (position.skills.length > 0) {
         currentY = ensureEnoughSpace(doc, 40, currentY);
-        
+
         doc.setFont("Helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor("rgb(100,100,100)");
         const skillsText = "Key Skills: " + position.skills.join(" • ");
-        const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth);
+        const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth) as string;
         doc.text(splitSkills, rightColumnStart, currentY);
         doc.setTextColor("black");
-        
+
         currentY += splitSkills.length * 10 + 30;
       }
     }
   }
 
   // Projects
-  if (data.projects.length > 0) {
+  if (Array.isArray(data.projects) && data.projects.length > 0) {
     // Projects header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
@@ -226,7 +229,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
 
     // Process each project
     for (const project of data.projects) {
-      const estimatedHeight = 80 + project["Description"].length / 5;
+      const estimatedHeight = 80 + (project["Description"] ? project["Description"].length : 0) / 5;
       currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
 
       // Title and dates
@@ -234,26 +237,27 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
       doc.setFontSize(13);
       const titleWidth = doc.getTextWidth(project["Title"]);
       doc.text(project["Title"], rightColumnStart, currentY);
-      
+
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(11);
       const dateText = `(${formatDate(project["Started On"])} - ${formatDate(project["Finished On"])})`;
       doc.text(dateText, rightColumnStart + titleWidth + 10, currentY);
-      
+
       currentY += 20;
 
       // Description
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
-      const splitDescription = doc.splitTextToSize(project["Description"], rightColumnWidth);
+      const description = project["Description"] || '';
+      const splitDescription = doc.splitTextToSize(description, rightColumnWidth) as string;
       doc.text(splitDescription, rightColumnStart, currentY);
-      
+
       currentY += splitDescription.length * 12 + 30;
     }
   }
 
   // Education
-  if (data.education.length > 0) {
+  if (Array.isArray(data.education) && data.education.length > 0) {
     // Education header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
@@ -263,7 +267,8 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
 
     // Process each education entry
     for (const edu of data.education) {
-      const estimatedHeight = 100 + (edu["Notes"]?.length || 0) / 5;
+      const notesLength = edu["Notes"] ? edu["Notes"].length : 0;
+      const estimatedHeight = 100 + notesLength / 5;
       currentY = ensureEnoughSpace(doc, estimatedHeight, currentY);
 
       // School name
@@ -291,7 +296,8 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
 
       // Notes
       if (typeof edu["Notes"] === 'string' && edu["Notes"].length > 0) {
-        const splitNotes = doc.splitTextToSize(edu["Notes"], rightColumnWidth);
+        const notes = edu["Notes"] || '';
+        const splitNotes = doc.splitTextToSize(notes, rightColumnWidth) as string;
         doc.text(splitNotes, rightColumnStart, currentY);
         currentY += splitNotes.length * 12 + 20;
       }
@@ -299,7 +305,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   }
 
   // Skills
-  if (Object.keys(data.skillCategories ?? {}).length > 0) {
+  if (typeof data.skillCategories === 'object' && Object.keys(data.skillCategories).length > 0) {
     // Technical Skills header
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
@@ -323,7 +329,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
       doc.setFont("Helvetica", "normal");
       doc.setFontSize(10);
       const skillsText = skills.join(" • ");
-      const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth);
+      const splitSkills = doc.splitTextToSize(skillsText, rightColumnWidth) as string;
       doc.text(splitSkills, rightColumnStart, currentY);
       currentY += splitSkills.length * 12 + 20;
     }
@@ -333,7 +339,7 @@ export async function generateCV(data: TransformedCVData, config: Config): Promi
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(10);
   doc.text("This CV generated with", 50, doc.internal.pageSize.getHeight() - 80);
-  
+
   const backRef = "https://github.com/lbsa71/cv";
   doc.setTextColor("blue");
   doc.textWithLink(backRef, 50, doc.internal.pageSize.getHeight() - 60, { url: backRef });
