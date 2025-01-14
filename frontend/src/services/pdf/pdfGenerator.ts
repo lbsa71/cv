@@ -1,22 +1,15 @@
 import type {
   TransformedCVData,
   Language,
-  Config,
-  LocationMap
+  Config
 } from "@cv/shared";
+import { formatDate, trimLocation } from "@cv/shared/dist/utils/config";
 
 import * as jspdf from 'jspdf';
 
-const defaultLocationMap: Record<string, string> = {
-  "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
-  "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
-  "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
-  "Göteborg, Sverige": "Gothenburg, Sweden",
-};
+export async function fileToBase64(file?: File): Promise<string | undefined> {
 
-export async function fileToBase64(file?: File): Promise<string> {
-
-  if (!file) return null;
+  if (!file) return undefined;
 
   const reader = new FileReader();
 
@@ -32,15 +25,6 @@ export async function fileToBase64(file?: File): Promise<string> {
     reader.onerror = (error) => reject(error);
     reader.readAsDataURL(file);
   });
-}
-
-function trimLocation(location: string, locationMap: LocationMap = defaultLocationMap): string {
-  return location in locationMap ? locationMap[location] ?? location : location;
-}
-
-function formatDate(date: string | null | undefined): string {
-  if (date === null || date === undefined || date === '') return "Present";
-  return date;
 }
 
 function ensureEnoughSpace(doc: jspdf.jsPDF, requiredHeight: number, currentY: number): number {
