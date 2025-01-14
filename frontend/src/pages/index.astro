@@ -114,7 +114,7 @@
     </section>
 
     <script>
-      import { generateCV } from "../services/pdf/pdfGenerator";
+      import { fileToBase64, generateCV } from "../services/pdf/pdfGenerator";
       import {
         parseFiles,
         transformData,
@@ -133,7 +133,6 @@
 
       // Function to handle file upload and processing
       async function handleFileUploadAndProcess() {
-        console.log("Handling file upload");
         const zipInput = document.getElementById(
           "zipInput",
         ) as HTMLInputElement;
@@ -143,14 +142,25 @@
         const jsonInput = document.getElementById(
           "jsonInput",
         ) as HTMLInputElement;
+
         if (!zipInput.files) {
           console.error("ZIP input element not found");
           return;
         }
+
         const zipFile = zipInput.files[0];
         const imageFile = imageInput.files?.length
           ? imageInput.files[0]
           : undefined;
+
+        let imageData = await fileToBase64(imageFile);
+
+        if (imageData) {
+          console.log("Image file:", imageData);
+        } else {
+          console.log("No image file selected");
+        }
+
         const jsonFile = jsonInput.files?.length
           ? jsonInput.files[0]
           : undefined;
@@ -180,9 +190,6 @@
             }
           }
 
-          // Pass processed files to your parsing function
-          const rawData = await parseFiles(files, imageFile);
-
           // Process JSON file if provided
           let config: Config;
 
@@ -198,9 +205,8 @@
             config = defaultConfig;
           }
 
-          console.log("Raw data processed:", rawData);
+          const rawData = await parseFiles(files, imageData);
           const transformedData = transformData(rawData, config);
-          console.log("Transformed data:", transformedData);
 
           await generateCV(transformedData, config);
         } catch (error) {

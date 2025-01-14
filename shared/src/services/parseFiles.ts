@@ -1,15 +1,16 @@
 import { parseCSV } from "../utils/csvParser";
 
-export function parseFiles(files: Record<string, any>, imageFile?: File) {
-    const rawData: Record<string, any> = {};
+export function parseFiles(files: Record<string, any>, image?: string) {
+    const rawData: Record<string, any> = { image };
+
 
     for (const fileName of Object.keys(files)) {
         console.log("Processing file:", fileName);
-        const file = files[fileName];
-        if (!file) continue;
+        const fileData = files[fileName];
+
+        if (!fileData) continue;
 
         if (fileName.endsWith(".csv")) {
-            const fileData = file;
             const baseName = fileName.split("/").pop();
             if (
                 baseName &&
@@ -22,14 +23,10 @@ export function parseFiles(files: Record<string, any>, imageFile?: File) {
             ) {
                 rawData[baseName] = parseCSV(fileData);
             }
-        } else if (
-            fileName.endsWith(".jpg") ||
-            fileName.endsWith(".png")
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".png")
         ) {
-            // Skip image files in ZIP if we have a separate image upload
-            if (!imageFile) {
-                const imageData = file.async("base64");
-                rawData.image = `data:image/jpeg;base64,${imageData}`;
+            if (!image) {
+                rawData.image = fileData;
             }
         }
     }

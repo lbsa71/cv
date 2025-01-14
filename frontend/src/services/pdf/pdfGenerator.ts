@@ -14,6 +14,26 @@ const defaultLocationMap: Record<string, string> = {
   "Göteborg, Sverige": "Gothenburg, Sweden",
 };
 
+export async function fileToBase64(file?: File): Promise<string> {
+
+  if (!file) return null;
+
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.onload = () => {
+
+      if (typeof reader.result !== 'string') {
+        return reject(new Error("Failed to read file as base64 string"));
+      }
+
+      return resolve(reader.result);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
 function trimLocation(location: string, locationMap: LocationMap = defaultLocationMap): string {
   return location in locationMap ? locationMap[location] ?? location : location;
 }
