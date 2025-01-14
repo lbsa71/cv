@@ -2,8 +2,7 @@ import path from "path";
 import fs from "fs";
 import { promisify } from "util";
 import { parse } from "json5";
-import { loadAndTransformData } from "./services/data/transformationService";
-import { Config } from "./types";
+import { Config, defaultConfig, parseFiles, transformData } from "@cv/shared";
 import { generateCV } from "./services/pdf/pdfGenerator";
 
 async function main() {
@@ -14,30 +13,39 @@ async function main() {
     const zipFileName = args.find(arg => arg.endsWith('.zip'));
     const imageFileName = args.find(arg => /\.(jpg|jpeg|png)$/.test(arg));
 
-    let config: Config | undefined;
+    let config: Config;
 
     if (configFileName) {
       console.log("Loading configuration from JSON file...");
       const configFileContent = await promisify(fs.readFile)(configFileName, 'utf8');
-      config = parse(configFileContent);
+      config = { ...defaultConfig, ...parse(configFileContent) };
     }
+    else
+      config = defaultConfig;
 
     if (zipFileName) {
       console.log("Extracting ZIP file...");
       await fs.createReadStream(zipFileName)
+        // TODO: hm, what import is missing?
         .pipe(unzipper.Extract({ path: 'extracted' }))
         .promise();
+
+      // TODO: The file contents should populate a 'files' object with filename as key and file content as value
     }
 
     if (imageFileName) {
       console.log("Processing image file...");
 
     }
-    const data = await loadAndTransformData(config);
+
+    // TODO: Load imageData from imageFileName as data:image/jpg;base64 
+
+    const rawData = await parseFiles(files, imageData);
+    const transformedData = transformData(rawData, config);
 
     console.log("Generating PDF...");
     const outputPath = path.join(process.cwd(), "output", "cv.pdf");
-    await generateCV(data, outputPath);
+    await generateCV(transformedData, outputPath);
 
     console.log("CV generated successfully!");
     console.log("Output path:", outputPath);
