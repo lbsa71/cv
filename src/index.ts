@@ -46,8 +46,6 @@ async function main() {
       imageData = `data:image/jpg;base64,${imageBuffer.toString('base64')}`;
     }
 
-    console.log("files:", JSON.stringify(files, null, 2));
-
     const rawData = await parseFiles(files, imageData);
     const transformedData = transformData(rawData, config);
 

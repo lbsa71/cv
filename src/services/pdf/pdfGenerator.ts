@@ -19,7 +19,6 @@ export async function generateCV(
   outputPath: string
 ): Promise<void> {
 
-
   const doc = new PDFDocument({
     margin: 50,
     size: "A4",
