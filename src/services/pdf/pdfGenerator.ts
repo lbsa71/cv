@@ -1,22 +1,7 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
-import path from "path";
-import { TransformedCVData } from "@cv/shared";
-
-function trimLocation(location: string): string {
-  const locationMap: Record<string, string> = {
-    "Gothenburg, Vastra Gotaland County, Sweden": "Gothenburg, Sweden",
-    "Gothenburg, Västra Götaland County, Sweden": "Gothenburg, Sweden",
-    "Gothenburg Metropolitan Area": "Gothenburg, Sweden",
-    "Göteborg, Sverige": "Gothenburg, Sweden",
-  };
-
-  return locationMap[location] || location;
-}
-
-function formatDate(date: string): string {
-  return date || "Present";
-}
+import { TransformedCVData, LocationMap, Config } from "@cv/shared";
+import { formatDate, trimLocation } from "@cv/shared/dist/utils/config";
 
 function ensureEnoughSpace(doc: PDFKit.PDFDocument, requiredHeight: number) {
   const currentY = doc.y;
@@ -31,6 +16,7 @@ function ensureEnoughSpace(doc: PDFKit.PDFDocument, requiredHeight: number) {
 
 export async function generateCV(
   data: TransformedCVData,
+  config: Config,
   outputPath: string
 ): Promise<void> {
   const doc = new PDFDocument({
@@ -58,9 +44,8 @@ export async function generateCV(
   const rightColumnStart = leftColumnWidth + 70;
 
   // Left Column - Profile Picture
-  const imagePath = path.join(process.cwd(), "images", "default.jpg");
-  if (fs.existsSync(imagePath)) {
-    doc.image(imagePath, 50, 50, {
+  if (typeof data.image === 'string' && data.image.trim() !== '') {
+    doc.image(data.image, 50, 50, {
       width: leftColumnWidth,
     });
   }
@@ -120,7 +105,7 @@ export async function generateCV(
   }
 
   // Websites
-  const websites = data.profile["Websites"]
+  const websites = (data.profile["Websites"] || '')
     .replace(/[\[\]]/g, "")
     .split(",")
     .map((site) => site.replace("OTHER:", "").replace("PORTFOLIO:", ""))
@@ -238,7 +223,7 @@ export async function generateCV(
       .moveDown(0.5)
       .text(
         `${firstPosition["Company Name"]} | ${trimLocation(
-          firstPosition["Location"]
+          firstPosition["Location"], config.locationMap
         )}`,
         {
           width: rightColumnWidth,
@@ -301,7 +286,7 @@ export async function generateCV(
         .fillColor("rgb(80,80,80)")
         .moveDown(0.5)
         .text(
-          `${position["Company Name"]} | ${trimLocation(position["Location"])}`,
+          `${position["Company Name"]} | ${trimLocation(position["Location"], config.locationMap)}`,
           {
             width: rightColumnWidth,
           }
@@ -492,13 +477,13 @@ export async function generateCV(
   }
 
   // Skills
-  if (data.skillCategories.length > 0) {
+  if (typeof data.skillCategories === 'object' && Object.keys(data.skillCategories).length > 0) {
     // Calculate height for first skill category including section header
-    const firstCategory = data.skillCategories[0];
+    const [firstCategoryName, firstSkills] = Object.entries(data.skillCategories)[0];
     const headerHeight = 50; // Height for section header
     const firstEntryHeight =
       60 + // Base height for category name
-      firstCategory.skills.length * 2; // Rough estimate based on number of skills
+      firstSkills.length * 2; // Rough estimate based on number of skills
 
     // Check if we need a new page for header + first entry
     if (ensureEnoughSpace(doc, headerHeight + firstEntryHeight)) {
@@ -516,21 +501,20 @@ export async function generateCV(
     doc
       .font("Helvetica-Bold")
       .fontSize(11)
-      .text(firstCategory.name, rightColumnStart, doc.y)
+      .text(firstCategoryName, rightColumnStart, doc.y)
       .moveDown(0.5)
       .font("Helvetica")
       .fontSize(10)
-      .text(firstCategory.skills.join(" • "), {
+      .text(firstSkills.join(" • "), {
         width: rightColumnWidth,
       })
       .moveDown(1.5);
 
     // Process remaining skill categories
-    for (let i = 1; i < data.skillCategories.length; i++) {
-      const category = data.skillCategories[i];
+    for (const [categoryName, skills] of Object.entries(data.skillCategories).slice(1)) {
       const estimatedHeight =
         60 + // Base height for category name
-        category.skills.length * 2; // Rough estimate based on number of skills
+        skills.length * 2; // Rough estimate based on number of skills
 
       if (ensureEnoughSpace(doc, estimatedHeight)) {
         doc.text("", rightColumnStart, doc.page.margins.top);
@@ -539,11 +523,11 @@ export async function generateCV(
       doc
         .font("Helvetica-Bold")
         .fontSize(11)
-        .text(category.name, rightColumnStart, doc.y)
+        .text(categoryName, rightColumnStart, doc.y)
         .moveDown(0.5)
         .font("Helvetica")
         .fontSize(10)
-        .text(category.skills.join(" • "), {
+        .text(skills.join(" • "), {
           width: rightColumnWidth,
         })
         .moveDown(1.5);

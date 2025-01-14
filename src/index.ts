@@ -1,8 +1,8 @@
 import path from "path";
 import fs from "fs";
 import { promisify } from "util";
-import { parse } from "json5";
 import { Config, defaultConfig, parseFiles, transformData } from "@cv/shared";
+import unzipper from "unzipper";
 import { generateCV } from "./services/pdf/pdfGenerator";
 
 async function main() {
@@ -18,19 +18,31 @@ async function main() {
     if (configFileName) {
       console.log("Loading configuration from JSON file...");
       const configFileContent = await promisify(fs.readFile)(configFileName, 'utf8');
-      config = { ...defaultConfig, ...parse(configFileContent) };
+      config = { ...defaultConfig, ...JSON.parse(configFileContent) };
     }
     else
       config = defaultConfig;
 
+    const files: Record<string, string> = {};
+
     if (zipFileName) {
       console.log("Extracting ZIP file...");
+      const files: Record<string, string> = {};
       await fs.createReadStream(zipFileName)
-        // TODO: hm, what import is missing?
-        .pipe(unzipper.Extract({ path: 'extracted' }))
+        .pipe(unzipper.Parse())
+        .on('entry', async function (entry) {
+          const fileName = entry.path;
+          const content = await entry.buffer();
+          files[fileName] = content.toString('utf8');
+        })
         .promise();
+    }
 
-      // TODO: The file contents should populate a 'files' object with filename as key and file content as value
+    let imageData = '';
+    if (imageFileName) {
+      console.log("Processing image file...");
+      const imageBuffer = await promisify(fs.readFile)(imageFileName);
+      imageData = `data:image/jpg;base64,${imageBuffer.toString('base64')}`;
     }
 
     if (imageFileName) {
@@ -45,7 +57,7 @@ async function main() {
 
     console.log("Generating PDF...");
     const outputPath = path.join(process.cwd(), "output", "cv.pdf");
-    await generateCV(transformedData, outputPath);
+    await generateCV(transformedData, config, outputPath);
 
     console.log("CV generated successfully!");
     console.log("Output path:", outputPath);

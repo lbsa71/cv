@@ -1,4 +1,4 @@
-import type { Config } from '../models/types';
+import type { Config, LocationMap } from '../models/types';
 
 export const defaultConfig: Config = {
   "skillsMap": {
@@ -382,3 +382,11 @@ export const defaultConfig: Config = {
   }
 };
 
+export function trimLocation(location: string, locationMap: LocationMap): string {
+  return location in locationMap ? locationMap[location] ?? location : location;
+}
+
+export function formatDate(date: string | null | undefined): string {
+  if (date === null || date === undefined || date === '') return "Present";
+  return date;
+}
