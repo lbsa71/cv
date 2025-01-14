@@ -3,7 +3,7 @@ import type {
   Language,
   Config
 } from "@cv/shared";
-import { formatDate, trimLocation } from "@cv/shared/dist/utils/config";
+import { formatDate, trimLocation } from "@cv/shared";
 
 import * as jspdf from 'jspdf';
 
