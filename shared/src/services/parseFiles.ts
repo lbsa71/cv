@@ -31,5 +31,7 @@ export function parseFiles(files: Record<string, any>, image?: string) {
         }
     }
 
+    console.log("rawData:", JSON.stringify(rawData, null, 2));
+
     return rawData;
 }

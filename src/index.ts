@@ -27,13 +27,14 @@ async function main() {
 
     if (zipFileName) {
       console.log("Extracting ZIP file...");
-      const files: Record<string, string> = {};
       await fs.createReadStream(zipFileName)
         .pipe(unzipper.Parse())
         .on('entry', async function (entry) {
           const fileName = entry.path;
           const content = await entry.buffer();
-          files[fileName] = content.toString('utf8');
+          const contentStr = content.toString('utf8');
+          console.log(fileName, "=", contentStr);
+          files[fileName] = contentStr;
         })
         .promise();
     }
@@ -45,12 +46,7 @@ async function main() {
       imageData = `data:image/jpg;base64,${imageBuffer.toString('base64')}`;
     }
 
-    if (imageFileName) {
-      console.log("Processing image file...");
-
-    }
-
-    // TODO: Load imageData from imageFileName as data:image/jpg;base64 
+    console.log("files:", JSON.stringify(files, null, 2));
 
     const rawData = await parseFiles(files, imageData);
     const transformedData = transformData(rawData, config);

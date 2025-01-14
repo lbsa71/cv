@@ -1,7 +1,6 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
-import { TransformedCVData, LocationMap, Config } from "@cv/shared";
-import { formatDate, trimLocation } from "@cv/shared/dist/utils/config";
+import { TransformedCVData, Config, formatDate, trimLocation } from "@cv/shared";
 
 function ensureEnoughSpace(doc: PDFKit.PDFDocument, requiredHeight: number) {
   const currentY = doc.y;
@@ -19,6 +18,8 @@ export async function generateCV(
   config: Config,
   outputPath: string
 ): Promise<void> {
+
+
   const doc = new PDFDocument({
     margin: 50,
     size: "A4",
