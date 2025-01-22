@@ -82,6 +82,15 @@
     <section>
       <h2>Upload Your Files</h2>
       <div>
+        <label for="fullNameInput"><strong>Full Name:</strong></label>
+        <input
+          type="text"
+          id="fullNameInput"
+          placeholder="e.g. John Doe"
+          style="width: 100%; padding: 8px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px;"
+        />
+      </div>
+      <div>
         <label for="zipInput"><strong>Upload CV Data (ZIP):</strong></label>
         <input type="file" accept=".zip" id="zipInput" />
       </div>
@@ -133,6 +142,9 @@
 
       // Function to handle file upload and processing
       async function handleFileUploadAndProcess() {
+        const fullNameInput = document.getElementById(
+          "fullNameInput",
+        ) as HTMLInputElement;
         const zipInput = document.getElementById(
           "zipInput",
         ) as HTMLInputElement;
@@ -142,6 +154,12 @@
         const jsonInput = document.getElementById(
           "jsonInput",
         ) as HTMLInputElement;
+
+        const fullName = fullNameInput.value.trim();
+        if (!fullName) {
+          console.error("Full name is required");
+          return;
+        }
 
         if (!zipInput.files) {
           console.error("ZIP input element not found");
