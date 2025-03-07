@@ -2,6 +2,8 @@
 
 Please see [my CV](https://raw.githubusercontent.com/lbsa71/cv/refs/heads/main/output/cv.pdf) for example of what this app does.
 
+You can see the web browser version of the app on my [github pages](https://lbsa71.github.io/linkedin-cv-export/) but will probably not work out of the box for your CV (yet)
+
 A Node.js application that generates a professional PDF CV from LinkedIn data exports. First draft by Claude.ai, adjusted by lbsa71, then jointly developed in iterations.
 
 Caveat: I did this for me, as an gen-aI experiment. You will need to do heavy tailoring of the typescript code for your own needs.
