@@ -71,6 +71,8 @@ export type Config = {
   skillCategories: SkillCategories;
   locationMap: LocationMap;
   positions: PositionSkillMapping;
+  phone?: string;
+  linkedInRef?: string;
 };
 
 // Enhanced Types

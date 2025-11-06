@@ -68,22 +68,29 @@ export function generateCV(data: TransformedCVData, config: Config): void {
   doc.text("Contact", 50, currentY);
   currentY += 20;
 
-  const linkedInRef = `www.linkedin.com/in/lbsa71`;
+  const linkedInRef = config.linkedInRef || "";
 
   // Linkedin
-  doc.setFont("Helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor("blue");
-  doc.textWithLink(linkedInRef, 50, currentY, { url: "https://" + linkedInRef });
-  doc.setTextColor("black");
+  if (linkedInRef) {
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor("blue");
+    doc.textWithLink(linkedInRef, 50, currentY, { url: "https://" + linkedInRef });
+    doc.setTextColor("black");
+    currentY += 20;
+  }
 
   // Email
-  currentY += 20;
+  doc.setFont("Helvetica", "normal");
+  doc.setFontSize(10);
   doc.text(`Email: ${data.email["Email Address"]}`, 50, currentY);
+  currentY += 20;
 
   // Phone
-  currentY += 20;
-  doc.text("Phone: +46-733 75 11 99", 50, currentY);
+  if (config.phone) {
+    doc.text(`Phone: ${config.phone}`, 50, currentY);
+    currentY += 20;
+  }
 
   // Languages Section
   if (Array.isArray(data.languages) && data.languages.length > 0) {

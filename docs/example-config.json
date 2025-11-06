@@ -1,4 +1,6 @@
 {
+  "phone": "+46-733 75 11 99",
+  "linkedInRef": "www.linkedin.com/in/lbsa71",
   "skillsMap": {
     ".NET": "Microsoft.NET",
     "Databases": "",
@@ -97,6 +99,7 @@
       "GCP Cloud Build"
     ],
     "Engineering Practices": [
+      "AI Driven Development",
       "Software Architecture",
       "Software Design",
       "Software Engineering",
@@ -122,6 +125,16 @@
     "Göteborg, Sverige": "Gothenburg, Sweden"
   },
   "positions": {
+    "Bonfire Development AB": {
+      "Senior Systems Developer at Sine Wave Entertainment Ltd": [
+        "Artificial Intelligence (AI)",
+        "C#",
+        "Unity",
+        "Lua",
+        "AI Driven Development",
+        "Microsoft.NET"
+      ]
+    },
     "Hiber": {
       "Full Stack Developer": [
         "Amazon Web Services (AWS)",

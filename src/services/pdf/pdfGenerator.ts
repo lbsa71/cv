@@ -60,19 +60,21 @@ export async function generateCV(
     .text("Contact", 50, doc.y)
     .moveDown(1);
 
-  const linkedInRef = `www.linkedin.com/in/lbsa71`;
+  const linkedInRef = config.linkedInRef || "";
 
   // Linkedin
-  doc
-    .font("Helvetica")
-    .fontSize(10)
-    .fillColor("blue")
-    .text(linkedInRef, {
-      link: "https://" + linkedInRef,
-      underline: true,
-    })
-    .fillColor("black")
-    .moveDown(0.5);
+  if (linkedInRef) {
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .fillColor("blue")
+      .text(linkedInRef, {
+        link: "https://" + linkedInRef,
+        underline: true,
+      })
+      .fillColor("black")
+      .moveDown(0.5);
+  }
 
   // Email
   doc
@@ -83,11 +85,15 @@ export async function generateCV(
     .moveDown(0.5);
 
   // Phone
-  doc
-    .font("Helvetica")
-    .text("Phone", { continued: true })
-    .text(": +46-733 75 11 99")
-    .moveDown(1.5);
+  if (config.phone) {
+    doc
+      .font("Helvetica")
+      .text("Phone", { continued: true })
+      .text(`: ${config.phone}`)
+      .moveDown(1.5);
+  } else {
+    doc.moveDown(1.5);
+  }
 
   // Languages Section
   if (data.languages.length > 0) {

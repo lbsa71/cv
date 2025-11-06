@@ -11,6 +11,8 @@ export const defaultConfig: Config = {
     "AWS": "Amazon Web Services (AWS)",
     "GCP": "Google Cloud Platform (GCP)"
   },
+  "phone": "+46-733 75 11 99",
+  "linkedInRef": "www.linkedin.com/in/lbsa71",
   "skillCategories": {
     "Core Competencies": [
       "Full-Stack Development",
