@@ -26,17 +26,20 @@ async function main() {
     const files: Record<string, string> = {};
 
     if (zipFileName) {
-      console.log("Extracting ZIP file...");
+      console.log(`\n=== Extracting ZIP file: ${zipFileName} ===`);
       await fs.createReadStream(zipFileName)
         .pipe(unzipper.Parse())
         .on('entry', async function (entry) {
           const fileName = entry.path;
           const content = await entry.buffer();
           const contentStr = content.toString('utf8');
-          console.log(fileName, "=", contentStr);
+          console.log(`Found file in ZIP: ${fileName} (${contentStr.length} characters)`);
           files[fileName] = contentStr;
         })
         .promise();
+      console.log(`\nTotal files extracted from ZIP: ${Object.keys(files).length}`);
+    } else {
+      console.log("⚠️  No ZIP file provided");
     }
 
     let imageData = '';
@@ -47,9 +50,21 @@ async function main() {
     }
 
     const rawData = await parseFiles(files, imageData);
+    console.log("\n=== Raw data summary ===");
+    console.log("Raw data keys:", Object.keys(rawData));
+    
     const transformedData = transformData(rawData, config);
+    console.log("\n=== Transformed data summary ===");
+    console.log("Transformed data structure:", {
+      hasProfile: !!transformedData.profile,
+      positionsCount: transformedData.positions?.length ?? 0,
+      projectsCount: transformedData.projects?.length ?? 0,
+      educationCount: transformedData.education?.length ?? 0,
+      hasEmail: !!transformedData.email,
+      languagesCount: transformedData.languages?.length ?? 0,
+    });
 
-    console.log("Generating PDF...");
+    console.log("\nGenerating PDF...");
     const outputPath = path.join(process.cwd(), "output", "cv.pdf");
     await generateCV(transformedData, config, outputPath);
 

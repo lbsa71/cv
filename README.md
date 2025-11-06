@@ -39,7 +39,7 @@ This app has cost about
      - Projects
      - Skills
      - Education
-   - Place the exported CSV files in the `exports/` directory
+   - Download the ZIP file that LinkedIn provides
 
 2. Install dependencies:
    ```bash
@@ -56,7 +56,17 @@ This app has cost about
 
 2. Generate your CV:
    ```bash
-   npm start
+   npm start <linkedin-export.zip> [config.json] [image.jpg]
+   ```
+
+   Where:
+   - `<linkedin-export.zip>` - Required: The ZIP file downloaded from LinkedIn
+   - `[config.json]` - Optional: Custom configuration file (defaults to built-in config)
+   - `[image.jpg]` - Optional: Profile picture image file
+
+   Example:
+   ```bash
+   npm start linkedin-data.zip docs/example-config.json docs/default.jpg
    ```
 
 The generated PDF will be saved to `output/cv.pdf`.
@@ -71,9 +81,12 @@ The generated PDF will be saved to `output/cv.pdf`.
 
 - `src/`
   - `index.ts` - Main application entry point
-  - `types.ts` - TypeScript interfaces for LinkedIn data
-  - `utils/`
-    - `csvParser.ts` - CSV parsing utilities
-    - `pdfGenerator.ts` - PDF generation logic
-- `exports/` - Directory for LinkedIn CSV exports
+  - `services/pdf/pdfGenerator.ts` - PDF generation logic
+- `shared/` - Shared code between frontend and backend
+  - `src/models/types.ts` - TypeScript interfaces for LinkedIn data
+  - `src/utils/csvParser.ts` - CSV parsing utilities
+  - `src/services/parseFiles.ts` - File parsing logic
+  - `src/services/transformationService.ts` - Data transformation logic
+- `docs/` - Documentation and example configuration
+  - `example-config.json` - Example configuration file
 - `output/` - Directory for generated PDF

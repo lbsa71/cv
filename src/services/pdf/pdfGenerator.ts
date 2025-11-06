@@ -19,6 +19,19 @@ export async function generateCV(
   outputPath: string
 ): Promise<void> {
 
+  console.log("\n=== generateCV: Starting PDF generation ===");
+  console.log("Data structure check:");
+  console.log("- Profile:", data.profile ? "Present" : "MISSING");
+  console.log("- Positions:", data.positions?.length ?? 0);
+  console.log("- Projects:", data.projects?.length ?? 0);
+  console.log("- Education:", data.education?.length ?? 0);
+  console.log("- Email:", data.email ? "Present" : "MISSING");
+  console.log("- Languages:", data.languages?.length ?? 0);
+  
+  if (!data.profile) {
+    throw new Error("Profile data is missing! Cannot generate CV without profile information. Please ensure Profile.csv is included in your ZIP file.");
+  }
+
   const doc = new PDFDocument({
     margin: 50,
     size: "A4",

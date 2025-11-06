@@ -82,8 +82,19 @@ export function transformData(
   rawData: RawData,
   config: Config
 ): TransformedCVData {
+  console.log("\n=== transformData: Starting transformation ===");
+  console.log("Available raw data keys:", Object.keys(rawData));
+  console.log("Profile.csv:", rawData["Profile.csv"] ? `${rawData["Profile.csv"].length} entries` : "MISSING");
+  console.log("Positions.csv:", rawData["Positions.csv"] ? `${rawData["Positions.csv"].length} entries` : "MISSING");
+  console.log("Projects.csv:", rawData["Projects.csv"] ? `${rawData["Projects.csv"].length} entries` : "MISSING");
+  console.log("Education.csv:", rawData["Education.csv"] ? `${rawData["Education.csv"].length} entries` : "MISSING");
+  console.log("Email Addresses.csv:", rawData["Email Addresses.csv"] ? `${rawData["Email Addresses.csv"].length} entries` : "MISSING");
+  console.log("Languages.csv:", rawData["Languages.csv"] ? `${rawData["Languages.csv"].length} entries` : "MISSING");
+  
   // Filter recent positions and map skills
   const positions = filterRecentPositions(rawData["Positions.csv"] || []);
+  console.log(`Filtered positions: ${positions.length} (from ${rawData["Positions.csv"]?.length || 0})`);
+  
   const positionsWithSkills = mapSkillsToPositions(positions, config.positions);
 
   // Get all unique skills from positions
@@ -95,7 +106,7 @@ export function transformData(
   // Categorize skills
   const skillCategories = categorizeSkills(Array.from(allSkills), config.skillCategories);
 
-  return {
+  const transformed: TransformedCVData = {
     profile: rawData["Profile.csv"]?.[0],
     positions: positionsWithSkills,
     projects: rawData["Projects.csv"] || [],
@@ -105,4 +116,18 @@ export function transformData(
     skillCategories,
     image: rawData.image,
   };
+
+  console.log("\n=== transformData: Transformation complete ===");
+  console.log("Profile:", transformed.profile ? "Present" : "MISSING - This will cause an error!");
+  if (transformed.profile) {
+    console.log("Profile keys:", Object.keys(transformed.profile));
+  }
+  console.log("Positions:", transformed.positions.length);
+  console.log("Projects:", transformed.projects.length);
+  console.log("Education:", transformed.education.length);
+  console.log("Email:", transformed.email ? "Present" : "MISSING");
+  console.log("Languages:", transformed.languages.length);
+  console.log("Skill categories:", Object.keys(transformed.skillCategories).length);
+  
+  return transformed;
 }
