@@ -37,7 +37,10 @@ function ensureEnoughSpace(doc: jspdf.jsPDF, requiredHeight: number, currentY: n
   return currentY;
 }
 
-export function generateCV(data: TransformedCVData, config: Config): void {
+export function generateCV(data: TransformedCVData, config: Config, privatize: boolean = false): void {
+  if (privatize) {
+    console.log("🔒 Privatize mode: Email and phone will be excluded from PDF");
+  }
   const doc = new jspdf.jsPDF({
     orientation: "portrait",
     unit: "pt",
@@ -81,13 +84,15 @@ export function generateCV(data: TransformedCVData, config: Config): void {
   }
 
   // Email
-  doc.setFont("Helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(`Email: ${data.email["Email Address"]}`, 50, currentY);
-  currentY += 20;
+  if (!privatize) {
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Email: ${data.email["Email Address"]}`, 50, currentY);
+    currentY += 20;
+  }
 
   // Phone
-  if (config.phone) {
+  if (!privatize && config.phone) {
     doc.text(`Phone: ${config.phone}`, 50, currentY);
     currentY += 20;
   }
@@ -345,16 +350,6 @@ export function generateCV(data: TransformedCVData, config: Config): void {
       currentY += splitSkills.length * 12 + 20;
     }
   }
-
-  // Add "Generated with" section at bottom of left column
-  doc.setFont("Helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text("This CV generated with", 50, doc.internal.pageSize.getHeight() - 80);
-
-  const backRef = "https://github.com/lbsa71/cv";
-  doc.setTextColor("blue");
-  doc.textWithLink(backRef, 50, doc.internal.pageSize.getHeight() - 60, { url: backRef });
-  doc.setTextColor("black");
 
   // Trigger automatic download
   doc.save("cv.pdf");

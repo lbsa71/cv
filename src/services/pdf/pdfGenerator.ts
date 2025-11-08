@@ -16,10 +16,14 @@ function ensureEnoughSpace(doc: PDFKit.PDFDocument, requiredHeight: number) {
 export async function generateCV(
   data: TransformedCVData,
   config: Config,
-  outputPath: string
+  outputPath: string,
+  privatize: boolean = false
 ): Promise<void> {
 
   console.log("\n=== generateCV: Starting PDF generation ===");
+  if (privatize) {
+    console.log("🔒 Privatize mode: Email and phone will be excluded");
+  }
   console.log("Data structure check:");
   console.log("- Profile:", data.profile ? "Present" : "MISSING");
   console.log("- Positions:", data.positions?.length ?? 0);
@@ -90,15 +94,17 @@ export async function generateCV(
   }
 
   // Email
-  doc
-    .font("Helvetica")
-    .fontSize(10)
-    .text("Email", { continued: true })
-    .text(`: ${data.email["Email Address"]}`)
-    .moveDown(0.5);
+  if (!privatize) {
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text("Email", { continued: true })
+      .text(`: ${data.email["Email Address"]}`)
+      .moveDown(0.5);
+  }
 
   // Phone
-  if (config.phone) {
+  if (!privatize && config.phone) {
     doc
       .font("Helvetica")
       .text("Phone", { continued: true })
@@ -148,24 +154,6 @@ export async function generateCV(
     });
   }
 
-  doc.moveDown(2);
-
-  const backRef = "https://github.com/lbsa71/cv";
-  doc
-    .font("Helvetica")
-    .fontSize(10)
-    .text("This CV generated with", {
-      width: leftColumnWidth,
-    })
-    .moveDown(0.5)
-    .fillColor("blue")
-    .text(backRef, {
-      width: leftColumnWidth,
-      link: backRef,
-      underline: true,
-    })
-    .fillColor("black");
-
   // Right Column Content
   // Name and Title
   doc
@@ -193,12 +181,23 @@ export async function generateCV(
     .text("Professional Summary", rightColumnStart)
     .moveDown(1)
     .font("Helvetica")
-    .fontSize(10)
-    .text(data.profile["Summary"], {
+    .fontSize(10);
+  
+  // Split summary by newlines to support paragraph breaks
+  const summaryParagraphs = (data.profile["Summary"] || "").split(/\n+/).filter(p => p.trim().length > 0);
+  
+  summaryParagraphs.forEach((paragraph, index) => {
+    doc.text(paragraph.trim(), {
       width: rightColumnWidth,
       align: "justify",
-    })
-    .moveDown(2);
+    });
+    // Add spacing between paragraphs (but not after the last one)
+    if (index < summaryParagraphs.length - 1) {
+      doc.moveDown(0.5);
+    }
+  });
+  
+  doc.moveDown(2);
 
   // Experience
   if (data.positions.length > 0) {

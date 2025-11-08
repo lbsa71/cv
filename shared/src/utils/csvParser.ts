@@ -5,16 +5,53 @@ export function parseCSV<T extends object = any>(
   try {
     console.log("text", text);
 
-    const rows = text.split(/\r?\n/);
+    // Parse CSV properly handling multi-line quoted fields
+    const rows: string[] = [];
+    let currentRow = "";
+    let inQuotes = false;
+    let i = 0;
+
+    while (i < text.length) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Handle escaped quotes
+          currentRow += '"';
+          i += 2;
+        } else {
+          // Toggle quotes mode
+          inQuotes = !inQuotes;
+          currentRow += char;
+          i++;
+        }
+      } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
+        // End of row (only if not in quotes)
+        if (currentRow.trim()) {
+          rows.push(currentRow);
+        }
+        currentRow = "";
+        if (char === '\r' && nextChar === '\n') {
+          i += 2; // Skip \r\n
+        } else {
+          i++; // Skip \n
+        }
+      } else {
+        currentRow += char;
+        i++;
+      }
+    }
+
+    // Add the last row if it exists
+    if (currentRow.trim()) {
+      rows.push(currentRow);
+    }
+
     if (rows.length < 2) {
       throw new Error(
         `CSV file ${filename || ""} is empty or has no data rows`
       );
-    }
-
-    const headers = rows[0].split(",").map((h) => h.trim());
-    if (headers.length === 0) {
-      throw new Error(`CSV file ${filename || ""} has no headers`);
     }
 
     const parseRow = (row: string): T => {
@@ -65,7 +102,39 @@ export function parseCSV<T extends object = any>(
       }, {} as T);
     };
 
-    console.log("rows", rows);
+    // Extract header names from first row
+    const headerRow = rows[0];
+    const headers: string[] = [];
+    let headerValue = "";
+    let headerInQuotes = false;
+    let headerIndex = 0;
+
+    while (headerIndex < headerRow.length) {
+      const char = headerRow[headerIndex];
+      if (char === '"') {
+        if (headerInQuotes && headerRow[headerIndex + 1] === '"') {
+          headerValue += '"';
+          headerIndex += 2;
+        } else {
+          headerInQuotes = !headerInQuotes;
+          headerIndex++;
+        }
+      } else if (char === "," && !headerInQuotes) {
+        headers.push(headerValue.trim());
+        headerValue = "";
+        headerIndex++;
+      } else {
+        headerValue += char;
+        headerIndex++;
+      }
+    }
+    headers.push(headerValue.trim());
+
+    if (headers.length === 0) {
+      throw new Error(`CSV file ${filename || ""} has no headers`);
+    }
+
+    console.log("rows", rows.length);
 
     return rows
       .slice(1)

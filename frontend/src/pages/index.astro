@@ -97,6 +97,12 @@
         >
         <input type="file" accept=".json" id="jsonInput" />
       </div>
+      <div>
+        <label for="privatizeInput">
+          <input type="checkbox" id="privatizeInput" />
+          <strong>Privatize output (remove email and phone)</strong>
+        </label>
+      </div>
       <button onclick="handleFileUploadAndProcess()">Start Processing</button>
     </section>
     <section>
@@ -115,6 +121,7 @@
 
     <script>
       import { fileToBase64, generateCV } from "../services/pdf/pdfGenerator";
+      import { generateHTML } from "../services/html/htmlGenerator";
       import {
         parseFiles,
         transformData,
@@ -141,6 +148,9 @@
         ) as HTMLInputElement;
         const jsonInput = document.getElementById(
           "jsonInput",
+        ) as HTMLInputElement;
+        const privatizeInput = document.getElementById(
+          "privatizeInput",
         ) as HTMLInputElement;
 
         if (!zipInput.files) {
@@ -208,7 +218,16 @@
           const rawData = await parseFiles(files, imageData);
           const transformedData = transformData(rawData, config);
 
-          await generateCV(transformedData, config);
+          // Get privatize option
+          const privatize = privatizeInput.checked;
+          
+          if (privatize) {
+            console.log("⚠️  Privatize enabled: scrubbing email and phone from output");
+          }
+
+          // Generate both PDF and HTML
+          await generateCV(transformedData, config, privatize);
+          generateHTML(transformedData, config, privatize);
         } catch (error) {
           console.error("Error processing data:", error);
         }
